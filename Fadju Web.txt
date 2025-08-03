@@ -1,0 +1,67 @@
+Version WEB
+
+Une application web pour les cabinets et hôpitaux. Pour chaque établissement de santé, différents comptes pourront y avoir accès. 
+Ainsi pour chacun, il y aura: un compte géré par le secrétaire qui pourra confirmer les 
+demandes de rendez-vous, attribuer aux rendez-vous des médecins, vérifier les 
+plannings, gérer les médecins de l’établissement, gérer le profil de l’établissement. Un 
+compte pour chaque médecin où il pourra voir ses rendez-vous, voir les dossiers de ses 
+patients et y apporter des mises à jour au besoin.
+
+1. Le Secrétaire Santé 
+Le secrétaire sante est le secrétaire en tant que tel de l’établissement de santé. Il est le 
+représentant du cabinet ou de l’hôpital dans la plateforme. Chaque secrétaire aura la 
+possibilité de 
+• Gérer le profil de son établissement 
+• Gérer les médecins de son établissement 
+• Gérer son profil 
+• Confirmer les rendez-vous 
+• Affecter des médecins à chaque rendez-vous 
+• Vérifier les plannings 
+• Se connecter 
+2. Le Médecin 
+Un médecin peut travailler dans plusieurs établissements. Dans ce cas, il dispose d’un 
+compte pour chaque établissement. Chaque médecin aura la possibilité de : 
+• Se connecter 
+• Gérer son profil 
+• Voir le dossier médical de son patient 
+• Mettre à jour le dossier médical de son patient 
+• Voir son planning 
+3. Le Superadministrateur 
+• Se connecter 
+Le Superadministrateur est une personne qui est en contact direct avec le ministère de 
+la sante et ayant des informations sur tous les établissements de santé du Sénégal. Le 
+Superadministrateur aura la possibilité de : 
+• Confirmer ou non les inscriptions des cabinets 
+• Gérer les cabinets dans la plateforme 
+
+Cas d’utilisation du secrétaire santé 
+• Se connecter : l’application vérifie si les informations saisies sont conformes aux 
+ceux stockées dans la base de données 
+• Gérer le profil de son établissement : il peut modifier les informations que l’on peut 
+voir sur l’établissement de santé 
+• Gérer les médecins : le secrétaire santé a la possibilité de gérer les médecins de son 
+établissement 
+• Gérer son profil : le secrétaire santé a la possibilité de modifier son profil 
+• Confirmer les rendez-vous : le secrétaire santé a la possibilité de confirmer les 
+demandes de rendez-vous des patients 
+• Affecter des médecins : le secrétaire santé a la possibilité d’affecter des médecins à 
+chaque rendez-vous 
+• Vérifier les plannings : le secrétaire santé a la possibilité de voir le planning de 
+chaque médecin de son établissement
+
+Se connecter : l’application vérifie si les informations saisies sont conformes aux 
+ceux stockées dans la base de données 
+• Gérer son profil : le médecin a la possibilité de modifier son profil 
+• Voir les dossiers médicaux : le médecin a la possibilité de voir le dossier médical de 
+son patient 
+• Mettre à jour le dossier médical : le médecin a la possibilité de mettre à jour le 
+dossier médical de son patient 
+• Voir son planning : le médecin a la possibilité de voir son planning de rendez-vous
+
+Cas d’utilisation du superadministrateur 
+• Se connecter : l’application vérifie si les informations saisies sont conformes aux 
+ceux stockées dans la base de données 
+• Confirmer ou non les inscriptions des cabinets : le superadministrateur a la 
+possibilité de confirmer ou non les inscriptions des cabinets 
+• Gérer les cabinets : le superadministrateur a la possibilité de supprimer un cabinet de 
+la plateforme
