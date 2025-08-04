@@ -78,6 +78,11 @@ const RendezVousPage: React.FC = () => {
     isOpen: false,
     patient: null
   });
+
+  const [confirmModal, setConfirmModal] = useState<{isOpen: boolean, rdv: RendezVous | null}>({
+    isOpen: false,
+    rdv: null
+  });
   
   // États pour le formulaire de report
   const [reportForm, setReportForm] = useState({
@@ -283,9 +288,32 @@ const RendezVousPage: React.FC = () => {
     }
   };
 
-  const handleConfirmRdv = async (rdvId: string) => {
-    // Rediriger vers la page de demandes pour la confirmation avec attribution
-    router.push(`/secretaire/rendez-vous/demandes`);
+  const handleConfirmRdv = (rdv: RendezVous) => {
+    setConfirmModal({ isOpen: true, rdv });
+    setSelectedMedecin('');
+  };
+
+  const handleConfirmAssignment = async () => {
+    if (!confirmModal.rdv || !selectedMedecin || !user) {
+      toast.error('Veuillez sélectionner un médecin');
+      return;
+    }
+
+    try {
+      await rendezVousService.confirmerEtAttribuer(
+        confirmModal.rdv.id,
+        selectedMedecin,
+        user.id
+      );
+      
+      toast.success('Rendez-vous confirmé et attribué avec succès');
+      setConfirmModal({ isOpen: false, rdv: null });
+      setSelectedMedecin('');
+      fetchData(); // Recharger les données
+    } catch (error) {
+      console.error('Erreur lors de la confirmation:', error);
+      toast.error('Erreur lors de la confirmation du rendez-vous');
+    }
   };
 
   const handleViewPatient = (patientId: string) => {
@@ -619,7 +647,7 @@ const RendezVousPage: React.FC = () => {
                                 <Button
                                   variant="default"
                                   size="sm"
-                                  onClick={() => handleConfirmRdv(rdv.id)}
+                                  onClick={() => handleConfirmRdv(rdv)}
                                   className="bg-green-600 hover:bg-green-700"
                                 >
                                   <UserCheck className="w-4 h-4 mr-1" />
@@ -886,6 +914,69 @@ const RendezVousPage: React.FC = () => {
               onClick={() => setPatientModal({isOpen: false, patient: null})}
             >
               Fermer
+            </Button>
+          </div>
+        </Modal>
+
+        {/* Modal de confirmation et attribution */}
+        <Modal 
+          isOpen={confirmModal.isOpen} 
+          onClose={() => {
+            setConfirmModal({isOpen: false, rdv: null});
+            setSelectedMedecin('');
+          }}
+          title="Confirmer et attribuer le rendez-vous"
+          size="sm"
+        >
+          <div className="space-y-4">
+            {confirmModal.rdv && (
+              <>
+                <div className="bg-muted/30 rounded-lg p-4">
+                  <h3 className="font-semibold mb-2">Détails du rendez-vous</h3>
+                  <div className="space-y-2 text-sm">
+                    <p><span className="font-medium">Patient:</span> {getPatientInfo(confirmModal.rdv.patient_id)?.nom} {getPatientInfo(confirmModal.rdv.patient_id)?.prenom}</p>
+                    <p><span className="font-medium">Date:</span> {confirmModal.rdv.date_rdv?.seconds ? new Date(confirmModal.rdv.date_rdv.seconds * 1000).toLocaleDateString('fr-FR') : 'Date non définie'}</p>
+                    <p><span className="font-medium">Heure:</span> {getHeureRdv(confirmModal.rdv)}</p>
+                    <p><span className="font-medium">Motif:</span> {confirmModal.rdv.motif}</p>
+                  </div>
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium mb-2">Sélectionner un médecin *</label>
+                  <select
+                    value={selectedMedecin}
+                    onChange={(e) => setSelectedMedecin(e.target.value)}
+                    className="w-full p-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  >
+                    <option value="">-- Choisir un médecin --</option>
+                    {medecins.map((medecin) => (
+                      <option key={medecin.id} value={medecin.id}>
+                        Dr. {medecin.prenom} {medecin.nom} - {medecin.specialite}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+              </>
+            )}
+          </div>
+
+          <div className="flex justify-end space-x-2 pt-4">
+            <Button
+              variant="outline"
+              onClick={() => {
+                setConfirmModal({isOpen: false, rdv: null});
+                setSelectedMedecin('');
+              }}
+            >
+              Annuler
+            </Button>
+            <Button 
+              onClick={handleConfirmAssignment}
+              disabled={!selectedMedecin}
+              className="bg-green-600 hover:bg-green-700"
+            >
+              <UserCheck className="w-4 h-4 mr-1" />
+              Confirmer et attribuer
             </Button>
           </div>
         </Modal>

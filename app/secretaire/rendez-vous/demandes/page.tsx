@@ -109,7 +109,7 @@ const ConfirmationModal: React.FC<ConfirmationModalProps> = ({ rdv, isOpen, onCl
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent className="max-w-md">
         <DialogHeader>
-          <DialogTitle>Confirmer le rendez-vous</DialogTitle>
+          <DialogTitle>Confirmer & Attribuer le rendez-vous</DialogTitle>
         </DialogHeader>
         
         <div className="space-y-4">
@@ -149,7 +149,7 @@ const ConfirmationModal: React.FC<ConfirmationModalProps> = ({ rdv, isOpen, onCl
             Annuler
           </Button>
           <Button onClick={handleConfirm} loading={loading}>
-            Confirmer le rendez-vous
+            Confirmer & Attribuer
           </Button>
         </DialogFooter>
       </DialogContent>
@@ -367,6 +367,10 @@ const DemandesRendezVousPage: React.FC = () => {
   useEffect(() => {
     filterRendezVous();
   }, [rendezVous, searchTerm, selectedStatut, selectedMedecin, selectedDate]);
+
+  useEffect(() => {
+    console.log('État du modal confirmation:', confirmationModal);
+  }, [confirmationModal]);
 
   const fetchData = async () => {
     if (!user?.etablissement_id) {
@@ -859,7 +863,12 @@ const DemandesRendezVousPage: React.FC = () => {
                                     <Button
                                       variant="default"
                                       size="sm"
-                                      onClick={() => setConfirmationModal({isOpen: true, rdv})}
+                                      onClick={(e) => {
+                                        e.preventDefault();
+                                        e.stopPropagation();
+                                        console.log('Bouton cliqué, ouverture du modal');
+                                        setConfirmationModal({isOpen: true, rdv});
+                                      }}
                                       className="text-white"
                                     >
                                       <UserCheck className="w-4 h-4 mr-1" />
@@ -967,7 +976,10 @@ const DemandesRendezVousPage: React.FC = () => {
         <ConfirmationModal
           rdv={confirmationModal.rdv}
           isOpen={confirmationModal.isOpen}
-          onClose={() => setConfirmationModal({isOpen: false, rdv: null})}
+          onClose={() => {
+            console.log('Fermeture du modal');
+            setConfirmationModal({isOpen: false, rdv: null});
+          }}
           medecins={medecins}
           onConfirm={handleConfirmation}
         />

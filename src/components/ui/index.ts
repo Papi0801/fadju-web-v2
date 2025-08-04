@@ -11,6 +11,7 @@ export { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter }
 export { ThemeToggle } from './theme-toggle';
 export { ConditionalThemeToggle } from './conditional-theme-toggle';
 export { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from './dropdown-menu';
+export { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from './dialog';
 
 // Re-export types
 export type { ButtonProps } from './button';
