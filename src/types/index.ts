@@ -1,7 +1,7 @@
 import { Timestamp, GeoPoint } from 'firebase/firestore';
 
 // Types d'utilisateurs
-export type UserRole = 'superadmin' | 'secretaire' | 'medecin';
+export type UserRole = 'superadmin' | 'secretaire' | 'medecin' | 'patient';
 
 export interface User {
   id: string;
@@ -46,18 +46,55 @@ export interface EtablissementSante {
 // Rendez-vous
 export interface RendezVous {
   id: string;
-  creneau_horaire: string;
-  date_creation: Timestamp;
-  date_rendez_vous: Timestamp;
-  lieu: string;
-  medecin_id: string;
-  motif: string;
-  nom_medecin: string;
-  notes?: string | null;
   patient_id: string;
-  specialite: string;
-  statut: 'en_attente' | 'confirme' | 'annule' | 'termine';
+  medecin_id?: string; // Optionnel jusqu'à attribution par secrétaire
+  etablissement_id: string;
+  date_rendez_vous: Timestamp;
+  heure_debut: string;
+  heure_fin: string;
+  motif: string;
+  statut: 'en_attente' | 'confirmee' | 'annulee' | 'reportee' | 'terminee';
   type: 'consultation' | 'urgence' | 'suivi';
+  specialite?: string;
+  lieu?: string;
+  notes_secretaire?: string | null; // Notes du secrétaire
+  notes_medecin?: string | null; // Notes du médecin
+  cree_par: 'patient' | 'secretaire' | 'medecin'; // Qui a créé le RDV
+  date_creation: Timestamp;
+  date_modification: Timestamp;
+  // Historique des modifications
+  historique_modifications?: {
+    date: Timestamp;
+    action: 'creation' | 'confirmation' | 'attribution' | 'report' | 'annulation';
+    ancien_medecin_id?: string;
+    nouveau_medecin_id?: string;
+    ancienne_date?: Timestamp;
+    nouvelle_date?: Timestamp;
+    motif_modification?: string;
+    modifie_par: string; // ID de l'utilisateur
+  }[];
+}
+
+// Dossier Patient
+export interface DossierPatient {
+  id: string; // Identifiant unique du patient
+  patient_id: string; // Référence vers l'utilisateur patient
+  prenom: string;
+  nom: string;
+  email: string;
+  telephone: string;
+  adresse: string;
+  date_naissance: Timestamp;
+  genre: 'Homme' | 'Femme';
+  allergie?: string | null;
+  maladies_chroniques?: string | null;
+  groupe_sanguin: 'A+' | 'A-' | 'B+' | 'B-' | 'AB+' | 'AB-' | 'O+' | 'O-';
+  poids: number; // en kg
+  taille: number; // en cm
+  traitement_regulier?: string | null; // Noms des médicaments séparés par des virgules
+  date_creation: Timestamp;
+  date_modification: Timestamp;
+  actif: boolean;
 }
 
 // Résultats médicaux

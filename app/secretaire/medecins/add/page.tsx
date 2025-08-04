@@ -33,7 +33,7 @@ import {
 import { createUser } from '@/lib/firebase/auth';
 import { SPECIALITES_MEDICALES } from '@/lib/constants';
 import { MedecinForm } from '@/types';
-import { EmailService } from '@/lib/email/email-service';
+import { EmailServiceV2 } from '@/lib/email/email-service-v2';
 import { etablissementService } from '@/lib/firebase/firestore';
 
 const addMedecinSchema = yup.object({
@@ -111,32 +111,23 @@ const AddMedecinPage: React.FC = () => {
 
       // Envoyer l'email de bienvenue au médecin (ne pas faire échouer si l'email échoue)
       try {
-        if (EmailService.isConfigured()) {
-          await EmailService.sendWelcomeEmailToDoctor({
-            doctorEmail: data.email,
-            doctorName: `${data.prenom} ${data.nom}`,
-            password: data.password,
-            etablissementName: etablissementNom,
-          });
+        const emailResult = await EmailServiceV2.sendWelcomeEmail({
+          email: data.email,
+          name: `${data.prenom} ${data.nom}`,
+          password: data.password,
+          etablissement: etablissementNom,
+        });
 
-          // Envoyer une notification au secrétaire
-          if (user.email) {
-            await EmailService.sendNotificationToSecretary({
-              secretaryEmail: user.email,
-              secretaryName: `${user.prenom} ${user.nom}`,
-              doctorName: `${data.prenom} ${data.nom}`,
-              etablissementName: etablissementNom,
-            });
-          }
-
+        if (emailResult.success) {
           toast.success('Médecin ajouté avec succès ! Un email avec les identifiants a été envoyé.');
         } else {
-          toast.success('Médecin ajouté avec succès ! Veuillez lui communiquer ses identifiants manuellement.');
-          console.warn('EmailJS non configuré - email non envoyé');
+          toast.success('Médecin ajouté avec succès ! Les identifiants sont disponibles dans la console.');
         }
+        
+        console.log('Résultat email:', emailResult);
       } catch (emailError) {
         console.error('Erreur lors de l\'envoi de l\'email:', emailError);
-        toast.success('Médecin ajouté avec succès ! Erreur lors de l\'envoi de l\'email - veuillez lui communiquer ses identifiants manuellement.');
+        toast.success('Médecin ajouté avec succès ! Veuillez lui communiquer ses identifiants manuellement.');
       }
       
       router.push('/secretaire/medecins');

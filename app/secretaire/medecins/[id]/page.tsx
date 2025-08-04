@@ -31,7 +31,8 @@ import {
   Badge,
   Loading,
 } from '@/components/ui';
-import { RendezVousQueries, userService } from '@/lib/firebase/firestore';
+import { userService } from '@/lib/firebase/firestore';
+import { rendezVousService } from '@/lib/firebase/rendez-vous-service';
 import { User as UserType, RendezVous } from '@/types';
 
 const MedecinDetailPage: React.FC = () => {
@@ -57,7 +58,7 @@ const MedecinDetailPage: React.FC = () => {
         setMedecin(medecinData);
         
         // Récupérer les rendez-vous du médecin
-        const rendezVousData = await RendezVousQueries.getRendezVousByMedecin(medecinId);
+        const rendezVousData = await rendezVousService.getRendezVousByMedecin(medecinId);
         setRendezVous(rendezVousData);
       } else {
         toast.error('Médecin non trouvé');
@@ -127,7 +128,7 @@ const MedecinDetailPage: React.FC = () => {
       total: rendezVous.length,
       today: todayRdv.length,
       thisWeek: weekRdv.length,
-      pending: rendezVous.filter(rdv => rdv.statut === 'en_attente').length,
+      terminated: rendezVous.filter(rdv => rdv.statut === 'terminee' || rdv.statut === 'termine').length,
     };
   };
 
@@ -367,13 +368,13 @@ const MedecinDetailPage: React.FC = () => {
                 <div className="flex items-center justify-between">
                   <div>
                     <p className="text-sm font-medium text-orange-600 dark:text-orange-400">
-                      En attente
+                      Terminés
                     </p>
                     <p className="text-2xl font-bold text-orange-700 dark:text-orange-300">
-                      {stats.pending}
+                      {stats.terminated}
                     </p>
                   </div>
-                  <Clock className="w-8 h-8 text-orange-500" />
+                  <CheckCircle className="w-8 h-8 text-orange-500" />
                 </div>
               </div>
             </div>
@@ -397,12 +398,19 @@ const MedecinDetailPage: React.FC = () => {
                           {rdv.date_rendez_vous.toDate().toLocaleDateString('fr-FR')}
                         </p>
                         <p className="text-sm text-muted-foreground">
-                          {rdv.creneau_horaire} - {rdv.lieu}
+                          {rdv.heure_debut} - {rdv.heure_fin} • {rdv.motif}
                         </p>
                       </div>
                     </div>
-                    <Badge variant={rdv.statut === 'confirme' ? 'success' : 'warning'}>
-                      {rdv.statut}
+                    <Badge variant={
+                      (rdv.statut === 'confirme' || rdv.statut === 'confirmee') ? 'success' : 
+                      (rdv.statut === 'termine' || rdv.statut === 'terminee') ? 'default' :
+                      rdv.statut === 'reportee' ? 'secondary' : 'outline'
+                    }>
+                      {rdv.statut === 'confirmee' ? 'Confirmé' : 
+                       rdv.statut === 'terminee' ? 'Terminé' :
+                       rdv.statut === 'reportee' ? 'Reporté' :
+                       rdv.statut === 'annulee' ? 'Annulé' : rdv.statut}
                     </Badge>
                   </div>
                 ))}

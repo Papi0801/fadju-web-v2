@@ -20,6 +20,8 @@ import { DashboardLayout } from '@/components/layout';
 import { Card, CardContent, CardHeader, CardTitle, Badge, Button, Loading } from '@/components/ui';
 import { useRouter } from 'next/navigation';
 import { etablissementService, UserQueries, RendezVousQueries } from '@/lib/firebase/firestore';
+import { rendezVousService } from '@/lib/firebase/rendez-vous-service';
+import { dossierPatientService } from '@/lib/firebase/dossier-patient';
 import { EtablissementSante } from '@/types';
 
 const SecretaireDashboardPage: React.FC = () => {
@@ -32,7 +34,7 @@ const SecretaireDashboardPage: React.FC = () => {
     rendezVousAujourdhui: 0,
     enAttente: 0,
     medecinActifs: 0,
-    patientsInscrits: 0,
+    patientsSuivis: 0,
   });
 
   // Récupérer les informations de l'établissement et les statistiques
@@ -49,9 +51,10 @@ const SecretaireDashboardPage: React.FC = () => {
         setEtablissement(etablissementData);
 
         // Récupérer les statistiques réelles
-        const [medecins, rendezVous] = await Promise.all([
+        const [medecins, tousLesRdv, tousPatients] = await Promise.all([
           UserQueries.getMedecinsByEtablissement(user.etablissement_id),
-          RendezVousQueries.getRendezVousEnAttenteByEtablissement(user.etablissement_id)
+          rendezVousService.getRendezVousByEtablissement(user.etablissement_id),
+          dossierPatientService.getAll()
         ]);
 
         // Calculer les statistiques
@@ -60,18 +63,21 @@ const SecretaireDashboardPage: React.FC = () => {
         const tomorrow = new Date(today);
         tomorrow.setDate(tomorrow.getDate() + 1);
 
-        const rendezVousAujourdhui = rendezVous.filter(rdv => {
+        const rendezVousAujourdhui = tousLesRdv.filter(rdv => {
           const rdvDate = rdv.date_rendez_vous.toDate();
           return rdvDate >= today && rdvDate < tomorrow;
         }).length;
 
-        const enAttente = rendezVous.filter(rdv => rdv.statut === 'en_attente').length;
+        const enAttente = tousLesRdv.filter(rdv => rdv.statut === 'en_attente').length;
+
+        // Compter les patients uniques
+        const patientsUniques = new Set(tousLesRdv.map(rdv => rdv.patient_id));
 
         setStats({
           rendezVousAujourdhui,
           enAttente,
           medecinActifs: medecins.length,
-          patientsInscrits: 0, // TODO: Implémenter le comptage des patients
+          patientsSuivis: patientsUniques.size,
         });
       } catch (error) {
         console.error('Erreur lors de la récupération des données:', error);
@@ -82,6 +88,31 @@ const SecretaireDashboardPage: React.FC = () => {
 
     fetchData();
   }, [user?.etablissement_id]);
+
+  const handleNettoyageRdv = async () => {
+    if (!user?.etablissement_id) {
+      alert('Etablissement non défini');
+      return;
+    }
+
+    if (!confirm('Migrer et nettoyer tous les rendez-vous de cet établissement ?\n\nCela va :\n- Ajouter le champ etablissement_id manquant\n- Supprimer medecin_id des RDV en attente\n- Migrer creneau_horaire vers heure_debut/heure_fin\n- Conserver un historique des modifications')) {
+      return;
+    }
+
+    try {
+      const count = await rendezVousService.nettoyerEtMigrerRdv(user.etablissement_id);
+      if (count > 0) {
+        alert(`✅ Migration réussie !\n\n${count} rendez-vous ont été nettoyés et migrés :\n- Champ etablissement_id ajouté si manquant\n- medecin_id supprimé des RDV en attente\n- Horaires migrés vers nouveau format\n- Historique des modifications conservé`);
+        // Recharger les données
+        window.location.reload();
+      } else {
+        alert('ℹ️ Aucun rendez-vous à migrer ou nettoyer pour cet établissement');
+      }
+    } catch (error) {
+      console.error('Erreur:', error);
+      alert('❌ Erreur lors de la migration/nettoyage');
+    }
+  };
 
   const etablissementStatus = etablissement?.statut_validation || 'en_attente';
 
@@ -124,13 +155,23 @@ const SecretaireDashboardPage: React.FC = () => {
         className="space-y-6"
       >
         {/* Header */}
-        <div>
-          <h1 className="text-3xl font-bold text-foreground">
-            Tableau de Bord Secrétaire
-          </h1>
-          <p className="text-muted-foreground mt-2">
-            Bienvenue, {user?.prenom} {user?.nom} - {etablissement?.nom || 'Gestion de votre établissement'}
-          </p>
+        <div className="flex justify-between items-start">
+          <div>
+            <h1 className="text-3xl font-bold text-foreground">
+              Tableau de Bord Secrétaire
+            </h1>
+            <p className="text-muted-foreground mt-2">
+              Bienvenue, {user?.prenom} {user?.nom} - {etablissement?.nom || 'Gestion de votre établissement'}
+            </p>
+          </div>
+          {/* Bouton temporaire de migration/nettoyage */}
+          <Button
+            variant="outline"
+            onClick={handleNettoyageRdv}
+            className="bg-blue-50 border-blue-300 text-blue-800 hover:bg-blue-100"
+          >
+            🔄 Migrer RDV
+          </Button>
         </div>
 
         {/* Statut de validation */}
@@ -264,9 +305,9 @@ const SecretaireDashboardPage: React.FC = () => {
             <CardContent className="p-6">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-muted-foreground text-sm font-medium">Patients inscrits</p>
+                  <p className="text-muted-foreground text-sm font-medium">Patients suivis</p>
                   <p className="text-2xl font-bold text-foreground mt-1">
-                    {etablissementStatus === 'valide' ? stats.patientsInscrits : '-'}
+                    {etablissementStatus === 'valide' ? stats.patientsSuivis : '-'}
                   </p>
                   {etablissementStatus !== 'valide' && (
                     <p className="text-xs text-muted-foreground mt-1">Disponible après validation</p>

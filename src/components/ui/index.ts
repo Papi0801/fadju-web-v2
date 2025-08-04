@@ -3,6 +3,7 @@ export { default as Button } from './button';
 export { default as Input } from './Input';
 export { default as Badge } from './badge';
 export { default as Modal } from './modal';
+export { default as Textarea } from './textarea';
 export { default as Loading, LoadingOverlay } from './loading';
 export * from './loading-skeleton';
 export * from './mobile-optimizations';

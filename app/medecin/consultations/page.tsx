@@ -38,8 +38,9 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from '@/components/ui';
-import { RendezVousQueries } from '@/lib/firebase/firestore';
-import { RendezVous } from '@/types';
+import { rendezVousService } from '@/lib/firebase/rendez-vous-service';
+import { dossierPatientService } from '@/lib/firebase/dossier-patient';
+import { RendezVous, DossierPatient } from '@/types';
 import { format } from 'date-fns';
 import { fr } from 'date-fns/locale';
 
@@ -50,6 +51,7 @@ const ConsultationsPage: React.FC = () => {
   const [rendezVous, setRendezVous] = useState<RendezVous[]>([]);
   const [filteredRendezVous, setFilteredRendezVous] = useState<RendezVous[]>([]);
   const [loading, setLoading] = useState(true);
+  const [patients, setPatients] = useState<Map<string, DossierPatient>>(new Map());
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedStatut, setSelectedStatut] = useState('');
   const [selectedDate, setSelectedDate] = useState('');
@@ -69,8 +71,25 @@ const ConsultationsPage: React.FC = () => {
     }
 
     try {
-      const rdvList = await RendezVousQueries.getRendezVousByMedecin(user.id);
+      const rdvList = await rendezVousService.getRendezVousByMedecin(user.id);
       setRendezVous(rdvList);
+
+      // Récupérer les informations des patients
+      const patientIds = [...new Set(rdvList.map(rdv => rdv.patient_id))];
+      const patientsMap = new Map<string, DossierPatient>();
+      
+      for (const patientId of patientIds) {
+        try {
+          const dossier = await dossierPatientService.getByPatientId(patientId);
+          if (dossier) {
+            patientsMap.set(patientId, dossier);
+          }
+        } catch (error) {
+          console.warn(`Impossible de récupérer le dossier du patient ${patientId}:`, error);
+        }
+      }
+      
+      setPatients(patientsMap);
     } catch (error) {
       console.error('Erreur lors de la récupération des rendez-vous:', error);
       toast.error('Erreur lors du chargement des consultations');
@@ -79,12 +98,21 @@ const ConsultationsPage: React.FC = () => {
     }
   };
 
+  const getPatientName = (patientId: string): string => {
+    const patient = patients.get(patientId);
+    return patient ? `${patient.prenom} ${patient.nom}` : 'Patient inconnu';
+  };
+
+  const getPatientInfo = (patientId: string) => {
+    return patients.get(patientId);
+  };
+
   const filterRendezVous = () => {
     let filtered = rendezVous;
 
     if (searchTerm) {
       filtered = filtered.filter(rdv =>
-        rdv.patient_nom?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        getPatientName(rdv.patient_id).toLowerCase().includes(searchTerm.toLowerCase()) ||
         rdv.motif?.toLowerCase().includes(searchTerm.toLowerCase())
       );
     }
@@ -121,42 +149,54 @@ const ConsultationsPage: React.FC = () => {
   const getStatutBadgeVariant = (statut: string) => {
     switch (statut) {
       case 'confirme':
+      case 'confirmee':
         return 'primary';
       case 'termine':
+      case 'terminee':
         return 'success';
       case 'annule':
+      case 'annulee':
         return 'destructive';
-      case 'en_attente':
+      case 'reportee':
+        return 'secondary';
       default:
-        return 'warning';
+        return 'outline';
     }
   };
 
   const getStatutLabel = (statut: string) => {
     switch (statut) {
       case 'confirme':
+      case 'confirmee':
         return 'Confirmé';
       case 'termine':
+      case 'terminee':
         return 'Terminé';
       case 'annule':
+      case 'annulee':
         return 'Annulé';
-      case 'en_attente':
+      case 'reportee':
+        return 'Reporté';
       default:
-        return 'En attente';
+        return 'Inconnu';
     }
   };
 
   const getStatutIcon = (statut: string) => {
     switch (statut) {
       case 'confirme':
+      case 'confirmee':
         return <CheckCircle className="w-4 h-4" />;
       case 'termine':
+      case 'terminee':
         return <CheckCircle className="w-4 h-4" />;
       case 'annule':
+      case 'annulee':
         return <XCircle className="w-4 h-4" />;
-      case 'en_attente':
-      default:
+      case 'reportee':
         return <Clock className="w-4 h-4" />;
+      default:
+        return <AlertCircle className="w-4 h-4" />;
     }
   };
 
@@ -185,9 +225,9 @@ const ConsultationsPage: React.FC = () => {
 
   const stats = {
     total: rendezVous.length,
-    confirmes: rendezVous.filter(rdv => rdv.statut === 'confirme').length,
-    termines: rendezVous.filter(rdv => rdv.statut === 'termine').length,
-    enAttente: rendezVous.filter(rdv => rdv.statut === 'en_attente').length,
+    confirmes: rendezVous.filter(rdv => rdv.statut === 'confirme' || rdv.statut === 'confirmee').length,
+    termines: rendezVous.filter(rdv => rdv.statut === 'termine' || rdv.statut === 'terminee').length,
+    reportes: rendezVous.filter(rdv => rdv.statut === 'reportee').length,
   };
 
   if (loading) {
@@ -284,10 +324,10 @@ const ConsultationsPage: React.FC = () => {
             <CardContent className="p-6">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-muted-foreground text-sm font-medium">En attente</p>
-                  <p className="text-2xl font-bold text-foreground">{stats.enAttente}</p>
+                  <p className="text-muted-foreground text-sm font-medium">Reportés</p>
+                  <p className="text-2xl font-bold text-foreground">{stats.reportes}</p>
                 </div>
-                <div className="p-3 rounded-lg bg-yellow-100 text-yellow-600">
+                <div className="p-3 rounded-lg bg-orange-100 text-orange-600">
                   <Clock className="w-6 h-6" />
                 </div>
               </div>
@@ -313,10 +353,13 @@ const ConsultationsPage: React.FC = () => {
                 className="flex h-10 rounded-md border border-border bg-input px-3 py-2 text-sm"
               >
                 <option value="">Tous les statuts</option>
-                <option value="en_attente">En attente</option>
                 <option value="confirme">Confirmé</option>
+                <option value="confirmee">Confirmé (nouveau)</option>
                 <option value="termine">Terminé</option>
+                <option value="terminee">Terminé (nouveau)</option>
+                <option value="reportee">Reporté</option>
                 <option value="annule">Annulé</option>
+                <option value="annulee">Annulé (nouveau)</option>
               </select>
               <Input
                 type="date"
@@ -380,16 +423,16 @@ const ConsultationsPage: React.FC = () => {
                                   <User className="w-6 h-6 text-primary" />
                                 </div>
                                 <div>
-                                  <h4 className="font-semibold text-lg">{rdv.patient_nom || 'Patient non spécifié'}</h4>
+                                  <h4 className="font-semibold text-lg">{getPatientName(rdv.patient_id)}</h4>
                                   <div className="flex items-center space-x-4 mt-1 text-sm text-muted-foreground">
                                     <div className="flex items-center space-x-1">
                                       <Clock className="w-4 h-4" />
                                       <span>{rdv.creneau_horaire}</span>
                                     </div>
-                                    {rdv.patient_telephone && (
+                                    {getPatientInfo(rdv.patient_id)?.telephone && (
                                       <div className="flex items-center space-x-1">
                                         <Phone className="w-4 h-4" />
-                                        <span>{rdv.patient_telephone}</span>
+                                        <span>{getPatientInfo(rdv.patient_id)?.telephone}</span>
                                       </div>
                                     )}
                                   </div>

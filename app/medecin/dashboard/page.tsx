@@ -21,8 +21,9 @@ import { useAuthStore, useThemeStore } from '@/store';
 import { DashboardLayout } from '@/components/layout';
 import { Card, CardContent, CardHeader, CardTitle, Badge, Button, Loading } from '@/components/ui';
 import { useRouter } from 'next/navigation';
-import { RendezVousQueries } from '@/lib/firebase/firestore';
-import { RendezVous } from '@/types';
+import { rendezVousService } from '@/lib/firebase/rendez-vous-service';
+import { dossierPatientService } from '@/lib/firebase/dossier-patient';
+import { RendezVous, DossierPatient } from '@/types';
 import { format } from 'date-fns';
 import { fr } from 'date-fns/locale';
 
@@ -32,6 +33,7 @@ const MedecinDashboardPage: React.FC = () => {
   const router = useRouter();
   const [loading, setLoading] = useState(true);
   const [rendezVous, setRendezVous] = useState<RendezVous[]>([]);
+  const [patients, setPatients] = useState<Map<string, DossierPatient>>(new Map());
   const [stats, setStats] = useState({
     consultationsAujourdhui: 0,
     patientsVus: 0,
@@ -50,9 +52,26 @@ const MedecinDashboardPage: React.FC = () => {
     }
 
     try {
-      // Récupérer les rendez-vous du médecin
-      const rdvList = await RendezVousQueries.getRendezVousByMedecin(user.id);
+      // Récupérer les rendez-vous du médecin (seulement confirmés et terminés)
+      const rdvList = await rendezVousService.getRendezVousByMedecin(user.id);
       setRendezVous(rdvList);
+
+      // Récupérer les informations des patients
+      const patientIds = [...new Set(rdvList.map(rdv => rdv.patient_id))];
+      const patientsMap = new Map<string, DossierPatient>();
+      
+      for (const patientId of patientIds) {
+        try {
+          const dossier = await dossierPatientService.getByPatientId(patientId);
+          if (dossier) {
+            patientsMap.set(patientId, dossier);
+          }
+        } catch (error) {
+          console.warn(`Impossible de récupérer le dossier du patient ${patientId}:`, error);
+        }
+      }
+      
+      setPatients(patientsMap);
 
       // Calculer les statistiques
       const today = new Date();
@@ -62,14 +81,14 @@ const MedecinDashboardPage: React.FC = () => {
 
       const consultationsAujourdhui = rdvList.filter(rdv => {
         const rdvDate = rdv.date_rendez_vous.toDate();
-        return rdvDate >= today && rdvDate < tomorrow && rdv.statut === 'confirme';
+        return rdvDate >= today && rdvDate < tomorrow && (rdv.statut === 'confirmee' || rdv.statut === 'confirme');
       }).length;
 
-      const patientsVus = rdvList.filter(rdv => rdv.statut === 'termine').length;
+      const patientsVus = rdvList.filter(rdv => rdv.statut === 'terminee' || rdv.statut === 'termine').length;
 
       // Prochain RDV (le plus proche dans le futur)
       const futureRdv = rdvList
-        .filter(rdv => rdv.date_rendez_vous.toDate() > new Date() && rdv.statut === 'confirme')
+        .filter(rdv => rdv.date_rendez_vous.toDate() > new Date() && (rdv.statut === 'confirmee' || rdv.statut === 'confirme'))
         .sort((a, b) => a.date_rendez_vous.toMillis() - b.date_rendez_vous.toMillis());
       
       const prochainRdv = futureRdv.length > 0 ? futureRdv[0] : null;
@@ -100,9 +119,18 @@ const MedecinDashboardPage: React.FC = () => {
   const getNextAppointments = () => {
     const today = new Date();
     return rendezVous
-      .filter(rdv => rdv.date_rendez_vous.toDate() > today && rdv.statut === 'confirme')
+      .filter(rdv => rdv.date_rendez_vous.toDate() > today && (rdv.statut === 'confirmee' || rdv.statut === 'confirme'))
       .sort((a, b) => a.date_rendez_vous.toMillis() - b.date_rendez_vous.toMillis())
       .slice(0, 3);
+  };
+
+  const getPatientName = (patientId: string): string => {
+    const patient = patients.get(patientId);
+    return patient ? `${patient.prenom} ${patient.nom}` : 'Patient inconnu';
+  };
+
+  const getPatientInfo = (patientId: string) => {
+    return patients.get(patientId);
   };
 
   if (loading) {
@@ -239,13 +267,18 @@ const MedecinDashboardPage: React.FC = () => {
                     <User className="w-6 h-6 text-white" />
                   </div>
                   <div>
-                    <h3 className="font-semibold">{stats.prochainRdv.patient_nom}</h3>
+                    <h3 className="font-semibold">{getPatientName(stats.prochainRdv.patient_id)}</h3>
                     <p className="text-sm text-muted-foreground">
                       {format(stats.prochainRdv.date_rendez_vous.toDate(), 'EEEE dd MMMM yyyy à HH:mm', { locale: fr })}
                     </p>
                     {stats.prochainRdv.motif && (
                       <p className="text-sm text-muted-foreground mt-1">
                         Motif: {stats.prochainRdv.motif}
+                      </p>
+                    )}
+                    {getPatientInfo(stats.prochainRdv.patient_id) && (
+                      <p className="text-xs text-muted-foreground mt-1">
+                        {getPatientInfo(stats.prochainRdv.patient_id)?.telephone}
                       </p>
                     )}
                   </div>
@@ -334,14 +367,19 @@ const MedecinDashboardPage: React.FC = () => {
                           <User className="w-4 h-4" />
                         </div>
                         <div>
-                          <p className="font-medium text-sm">{rdv.patient_nom}</p>
+                          <p className="font-medium text-sm">{getPatientName(rdv.patient_id)}</p>
                           <p className="text-xs text-muted-foreground">
                             {format(rdv.date_rendez_vous.toDate(), 'dd/MM à HH:mm')}
                           </p>
+                          {getPatientInfo(rdv.patient_id) && (
+                            <p className="text-xs text-muted-foreground">
+                              {getPatientInfo(rdv.patient_id)?.groupe_sanguin} • {getPatientInfo(rdv.patient_id)?.telephone}
+                            </p>
+                          )}
                         </div>
                       </div>
                       <Badge variant="secondary" className="text-xs">
-                        {rdv.creneau_horaire}
+                        {rdv.heure_debut} - {rdv.heure_fin}
                       </Badge>
                     </div>
                   ))}

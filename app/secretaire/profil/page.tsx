@@ -220,10 +220,10 @@ const ProfilPage: React.FC = () => {
                   {getRoleBadge()}
                   <Badge variant="outline">
                     <Calendar className="w-3 h-3 mr-1" />
-                    Membre depuis {user.date_creation.toDate().toLocaleDateString('fr-FR', { 
-                      year: 'numeric', 
-                      month: 'long' 
-                    })}
+                    Membre depuis {user.date_creation && typeof user.date_creation.toDate === 'function' 
+                      ? user.date_creation.toDate().toLocaleDateString('fr-FR', { year: 'numeric', month: 'long' })
+                      : new Date(user.date_creation).toLocaleDateString('fr-FR', { year: 'numeric', month: 'long' })
+                    }
                   </Badge>
                 </div>
               </div>
