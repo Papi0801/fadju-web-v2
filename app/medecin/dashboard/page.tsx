@@ -80,7 +80,8 @@ const MedecinDashboardPage: React.FC = () => {
       tomorrow.setDate(tomorrow.getDate() + 1);
 
       const consultationsAujourdhui = rdvList.filter(rdv => {
-        const rdvDate = rdv.date_rendez_vous.toDate();
+        if (!rdv.date_rdv) return false;
+        const rdvDate = rdv.date_rdv.toDate();
         return rdvDate >= today && rdvDate < tomorrow && (rdv.statut === 'confirmee' || rdv.statut === 'confirme');
       }).length;
 
@@ -88,8 +89,8 @@ const MedecinDashboardPage: React.FC = () => {
 
       // Prochain RDV (le plus proche dans le futur)
       const futureRdv = rdvList
-        .filter(rdv => rdv.date_rendez_vous.toDate() > new Date() && (rdv.statut === 'confirmee' || rdv.statut === 'confirme'))
-        .sort((a, b) => a.date_rendez_vous.toMillis() - b.date_rendez_vous.toMillis());
+        .filter(rdv => rdv.date_rdv && rdv.date_rdv.toDate() > new Date() && (rdv.statut === 'confirmee' || rdv.statut === 'confirme'))
+        .sort((a, b) => a.date_rdv.toDate().getTime() - b.date_rdv.toDate().getTime());
       
       const prochainRdv = futureRdv.length > 0 ? futureRdv[0] : null;
 
@@ -119,8 +120,8 @@ const MedecinDashboardPage: React.FC = () => {
   const getNextAppointments = () => {
     const today = new Date();
     return rendezVous
-      .filter(rdv => rdv.date_rendez_vous.toDate() > today && (rdv.statut === 'confirmee' || rdv.statut === 'confirme'))
-      .sort((a, b) => a.date_rendez_vous.toMillis() - b.date_rendez_vous.toMillis())
+      .filter(rdv => rdv.date_rdv && rdv.date_rdv.toDate() > today && (rdv.statut === 'confirmee' || rdv.statut === 'confirme'))
+      .sort((a, b) => a.date_rdv.toDate().getTime() - b.date_rdv.toDate().getTime())
       .slice(0, 3);
   };
 
@@ -190,9 +191,8 @@ const MedecinDashboardPage: React.FC = () => {
             <CardContent className="p-6">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-muted-foreground text-sm font-medium">Consultations aujourd'hui</p>
-                  <p className="text-2xl font-bold text-foreground mt-1">{stats.consultationsAujourdhui}</p>
-                  <p className="text-xs text-muted-foreground mt-1">Rendez-vous confirmés</p>
+                  <p className="text-muted-foreground text-sm font-medium">RDV aujourd'hui</p>
+                  <p className="text-3xl font-bold text-foreground mt-2">{stats.consultationsAujourdhui}</p>
                 </div>
                 <div className="p-3 rounded-lg bg-blue-100 text-blue-600">
                   <Calendar className="w-6 h-6" />
@@ -205,9 +205,8 @@ const MedecinDashboardPage: React.FC = () => {
             <CardContent className="p-6">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-muted-foreground text-sm font-medium">Patients vus</p>
-                  <p className="text-2xl font-bold text-foreground mt-1">{stats.patientsVus}</p>
-                  <p className="text-xs text-muted-foreground mt-1">Consultations terminées</p>
+                  <p className="text-muted-foreground text-sm font-medium">Consultations terminées</p>
+                  <p className="text-3xl font-bold text-foreground mt-2">{stats.patientsVus}</p>
                 </div>
                 <div className="p-3 rounded-lg bg-green-100 text-green-600">
                   <UserCheck className="w-6 h-6" />
@@ -220,9 +219,8 @@ const MedecinDashboardPage: React.FC = () => {
             <CardContent className="p-6">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-muted-foreground text-sm font-medium">Total patients</p>
-                  <p className="text-2xl font-bold text-foreground mt-1">{stats.patientsTotaux}</p>
-                  <p className="text-xs text-muted-foreground mt-1">Patients uniques</p>
+                  <p className="text-muted-foreground text-sm font-medium">Patients suivis</p>
+                  <p className="text-3xl font-bold text-foreground mt-2">{stats.patientsTotaux}</p>
                 </div>
                 <div className="p-3 rounded-lg bg-purple-100 text-purple-600">
                   <Users className="w-6 h-6" />
@@ -235,13 +233,8 @@ const MedecinDashboardPage: React.FC = () => {
             <CardContent className="p-6">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-muted-foreground text-sm font-medium">Activité</p>
-                  <p className="text-2xl font-bold text-foreground mt-1">
-                    {rendezVous.length > 0 ? 'Actif' : 'Inactif'}
-                  </p>
-                  <p className="text-xs text-muted-foreground mt-1">
-                    {rendezVous.length} RDV total
-                  </p>
+                  <p className="text-muted-foreground text-sm font-medium">Total RDV</p>
+                  <p className="text-3xl font-bold text-foreground mt-2">{rendezVous.length}</p>
                 </div>
                 <div className={`p-3 rounded-lg ${rendezVous.length > 0 ? 'bg-green-100 text-green-600' : 'bg-gray-100 text-gray-600'}`}>
                   <Activity className="w-6 h-6" />
@@ -269,7 +262,7 @@ const MedecinDashboardPage: React.FC = () => {
                   <div>
                     <h3 className="font-semibold">{getPatientName(stats.prochainRdv.patient_id)}</h3>
                     <p className="text-sm text-muted-foreground">
-                      {format(stats.prochainRdv.date_rendez_vous.toDate(), 'EEEE dd MMMM yyyy à HH:mm', { locale: fr })}
+                      {format(stats.prochainRdv.date_rdv.toDate(), 'EEEE dd MMMM yyyy à HH:mm', { locale: fr })}
                     </p>
                     {stats.prochainRdv.motif && (
                       <p className="text-sm text-muted-foreground mt-1">
@@ -369,7 +362,7 @@ const MedecinDashboardPage: React.FC = () => {
                         <div>
                           <p className="font-medium text-sm">{getPatientName(rdv.patient_id)}</p>
                           <p className="text-xs text-muted-foreground">
-                            {format(rdv.date_rendez_vous.toDate(), 'dd/MM à HH:mm')}
+                            {format(rdv.date_rdv.toDate(), 'dd/MM à HH:mm')}
                           </p>
                           {getPatientInfo(rdv.patient_id) && (
                             <p className="text-xs text-muted-foreground">

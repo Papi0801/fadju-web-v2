@@ -22,6 +22,7 @@ Structure pour les hôpitaux et cabinets médicaux
   telephone: string; // "+221 33 869 20 20"
   type: string; // "hopital"
   ville: string; // "Dakar"
+  statut_validation: 'en_attente' | 'valide' | 'rejete'; // Statut de validation
   
   // Sous-collections
   horaires_travail: {
@@ -33,62 +34,178 @@ Structure pour les hôpitaux et cabinets médicaux
 }
 ```
 
-### 2. rendez_vous
-Gestion des rendez-vous médicaux
+### 2. users
+Gestion des utilisateurs (médecins, secrétaires)
+```typescript
+{
+  id: string; // UID Firebase Auth
+  nom: string; // "Sow"
+  prenom: string; // "Fatou"
+  email: string; // "fatou.sow@fadju.sn"
+  telephone: string; // "+221 77 123 45 67"
+  role: 'medecin' | 'secretaire' | 'superadmin';
+  etablissement_id: string; // Référence vers etablissements_sante
+  specialite?: string; // Pour les médecins
+  numero_ordre?: string; // Numéro d'ordre des médecins
+  date_creation: Timestamp;
+  actif: boolean; // Compte actif/inactif
+  derniere_connexion?: Timestamp;
+  
+  // Champs spécifiques médecins
+  numero_ordre?: string; // "M-2024-001"
+  diplomes?: string[]; // ["Doctorat en Médecine", "Spécialité Cardiologie"]
+  experience?: number; // Années d'expérience
+  
+  // Champs spécifiques secrétaires
+  permissions?: string[]; // ["gestion_medecins", "gestion_rdv"]
+}
+```
+
+### 3. rendez_vous
+Gestion des rendez-vous médicaux - **STRUCTURE MISE À JOUR**
 ```typescript
 {
   id: string; // "rdv-001"
-  creneau_horaire: string; // "10:30"
-  date_creation: Timestamp;
-  date_rendez_vous: Timestamp;
-  lieu: string; // "Clinique Pasteur, Dakar"
-  medecin_id: string; // "dr-fatou-sow"
-  motif: string; // "Contrôle cardiaque"
-  nom_medecin: string; // "Dr. Fatou Sow"
-  notes?: string | null;
+  
+  // Informations temporelles
+  date_rdv: Timestamp; // Date du rendez-vous
+  date_creation: Timestamp; // Date de création
+  
+  // Nouveau format horaire (remplace creneau_horaire)
+  heure_debut: string; // "10:30"
+  heure_fin: string; // "11:00"
+  creneau_horaire?: string; // DEPRECATED - maintenu pour compatibilité
+  
+  // Participants et lieu
   patient_id: string; // "G90AefcLATRP97SawW4QhKYzHeK2"
-  specialite: string; // "Cardiologue"
-  statut: string; // "confirme"
-  type: string; // "consultation"
+  medecin_id?: string; // "dr-fatou-sow" - OPTIONNEL pour statut en_attente
+  etablissement_id: string; // OBLIGATOIRE - "etab-001"
+  secretaire_id?: string; // Secrétaire qui a traité la demande
+  
+  // Informations médicales
+  motif: string; // "Contrôle cardiaque"
+  type: 'consultation' | 'analyse' | 'urgence' | 'suivi';
+  specialite?: string; // "Cardiologue"
+  
+  // Statut et workflow
+  statut: 'en_attente' | 'confirmee' | 'terminee' | 'annulee' | 'reportee';
+  
+  // Métadonnées
+  notes?: string;
+  priorite?: 'normale' | 'urgente' | 'critique';
+  
+  // Informations de finalisation (ajoutées lors du marquage comme terminé)
+  observations?: string; // Observations du médecin
+  ordonnance?: string; // Ordonnance prescrite
+  analyses_demandees?: string; // Analyses à effectuer
+  
+  // Pour les analyses - résultats
+  type_analyse?: string; // "Sanguin", "Urinaire"
+  nom_analyse?: string; // "NFS", "Glycémie"
+  resultats_analyse?: string; // Résultats détaillés
+  
+  // Historique des modifications
+  historique_modifications?: {
+    date: Timestamp;
+    action: string; // "creation", "confirmation", "report", "annulation", "terminaison"
+    utilisateur_id: string;
+    ancien_statut?: string;
+    nouveau_statut?: string;
+    raison?: string;
+  }[];
 }
 ```
 
-### 3. resultats_medicaux
-Dossiers médicaux des patients
+### 4. dossier_patient
+Dossiers médicaux des patients - **STRUCTURE MISE À JOUR**
+```typescript
+{
+  id: string; // ID du document
+  patient_id: string; // UID Firebase Auth du patient
+  
+  // Informations personnelles
+  nom: string; // "Diop"
+  prenom: string; // "Aminata"
+  date_naissance: Timestamp;
+  genre: 'masculin' | 'feminin';
+  telephone: string; // "+221 77 123 45 67"
+  email: string; // "aminata.diop@email.com"
+  adresse: string; // "Parcelles Assainies, Dakar"
+  
+  // Informations médicales de base
+  groupe_sanguin: string; // "A+"
+  poids: number; // 65
+  taille: number; // 165
+  allergie?: string; // "Pénicilline"
+  maladie_chronique?: string; // "Diabète de type 2"
+  personne_a_contacter: string; // "Fatou Diop - 77 987 65 43"
+  
+  // Informations de suivi médical (mises à jour par les médecins)
+  derniere_consultation?: Timestamp;
+  derniere_observation?: string; // Dernière observation médicale
+  dernieres_ordonnances?: string; // Dernières prescriptions
+  derniers_resultats?: {
+    type: string; // "Sanguin"
+    nom: string; // "NFS"
+    resultats: string; // "Résultats détaillés"
+    date: Timestamp;
+    medecin_id: string;
+  };
+  
+  // Métadonnées
+  date_creation: Timestamp;
+  notes?: string; // Notes générales
+  actif: boolean; // Dossier actif/archivé
+}
+```
+
+### 5. resultats_medicaux
+Résultats d'examens et analyses - **STRUCTURE MISE À JOUR**
 ```typescript
 {
   id: string; // "resultat-001"
-  date_consultation?: Timestamp | null;
-  date_creation: Timestamp;
-  date_resultat: Timestamp;
-  description: string; // "Bilan sanguin complet avec dosages"
-  medecin_id: string; // "dr-fatou-sow"
-  nom_medecin: string; // "Dr. Fatou Sow"
-  notes: string; // "Résultats dans les normes"
-  patient_id: string; // "G90AefcLATRP97SawW4QhKYzHeK2"
+  
+  // Informations de base
+  patient_id: string; // "test1234"
+  medecin_id: string; // "mjh9zEKGEoQYOGRjvib6q34aUYO2"
+  nom_medecin: string; // "Dr. Aissatou Salimata"
   rendez_vous_id: string; // "rdv-001"
-  statut: string; // "disponible"
-  titre: string; // "Analyses sanguines complètes"
-  type: string; // "analyse"
   
-  // Données médicales
-  donnees: {
-    cholesterol: string; // "1.8 g/l"
-    glycemie: string; // "0.95 g/l"
-    hemoglobine: string; // "14.2 g/dl"
-    leucocytes: string; // "7200/mm³"
-    plaquettes: string; // "350000/mm³"
-  };
+  // Informations temporelles
+  date_consultation: Timestamp; // Date de la consultation
+  date_creation: Timestamp; // Date de création du résultat
   
-  // Fichiers joints
-  fichiers_joints: {
-    id: string; // "resultat-001"
-    [key: string]: any;
-  };
+  // Type et description
+  type: 'consultation' | 'analyse' | 'ordonnance' | 'suivi';
+  titre: string; // "Consultation du 31/07/2025"
+  description: string; // Description détaillée
+  
+  // Données de consultation
+  observations?: string; // Observations du médecin
+  diagnostic?: string; // Diagnostic posé
+  traitement_prescrit?: string; // Traitement prescrit
+  ordonnance?: string; // Ordonnance détaillée
+  analyses_demandees?: string; // Analyses à effectuer
+  recommandations?: string; // Recommandations du médecin
+  
+  // Données d'analyse (si type = 'analyse')
+  type_analyse?: string; // "Sanguin", "Urinaire", etc.
+  nom_analyse?: string; // "NFS", "Glycémie", etc.
+  resultats_analyse?: string; // Résultats détaillés
+  valeurs_normales?: string; // Valeurs de référence
+  interpretation?: string; // Interprétation des résultats
+  
+  // Statut et métadonnées
+  statut: 'brouillon' | 'finalise' | 'transmis';
+  notes?: string; // Notes additionnelles
+  
+  // Données techniques (pour compatibilité)
+  donnees?: Record<string, any>; // Données structurées
+  fichiers_joints?: Record<string, any>; // Fichiers attachés
 }
 ```
 
-### 4. contacts_urgence
+### 6. contacts_urgence
 Services d'urgence disponibles
 ```typescript
 {
@@ -103,21 +220,109 @@ Services d'urgence disponibles
 }
 ```
 
+## Workflow de Gestion des Rendez-vous
+
+### 1. Création de RDV (Patient mobile)
+```
+Statut: en_attente
+- patient_id: renseigné
+- etablissement_id: renseigné
+- medecin_id: NULL (pas encore attribué)
+- date_rdv, motif, type: renseignés
+```
+
+### 2. Confirmation par Secrétaire (Web)
+```
+Statut: en_attente → confirmee
+- medecin_id: attribué par la secrétaire
+- secretaire_id: ID de la secrétaire
+- historique_modifications: ajout de l'action
+```
+
+### 3. Finalisation par Médecin (Web)
+```
+Statut: confirmee → terminee
+- observations: obligatoire
+- ordonnance: optionnel
+- analyses_demandees: optionnel
+- Mise à jour du dossier_patient automatique
+```
+
 ## Rôles et Permissions
 
 ### Superadministrateur
 - Gestion globale des établissements
-- Validation des inscriptions
+- Validation des inscriptions (`statut_validation`)
 - Accès complet aux données
+- Création de comptes secrétaires
 
 ### Secrétaire Santé
-- Gestion de l'établissement attribué
-- Gestion des médecins de l'établissement
-- Confirmation des rendez-vous
+- Gestion de l'établissement attribué uniquement
+- Création et gestion des comptes médecins de l'établissement
+- Confirmation des rendez-vous (`en_attente` → `confirmee`)
 - Attribution des médecins aux rendez-vous
+- Report et annulation des rendez-vous
+- Accès en lecture aux dossiers patients pour consultation
 
 ### Médecin
-- Consultation des rendez-vous assignés
-- Gestion des dossiers médicaux patients
+- Consultation des rendez-vous assignés uniquement
+- Finalisation des consultations (`confirmee` → `terminee`)
+- Gestion complète des dossiers médicaux de ses patients
 - Mise à jour des résultats médicaux
 - Consultation du planning personnel
+- **Restriction**: Ne peut pas modifier les dossiers d'autres médecins
+
+### Patient (Mobile uniquement)
+- Création de demandes de rendez-vous
+- Consultation de ses propres rendez-vous
+- Accès à ses résultats médicaux
+- Consultation des établissements disponibles
+
+## Règles de Sécurité Firebase
+
+### Collection rendez_vous
+```javascript
+// Lecture
+allow read: if request.auth != null && (
+  // Patient peut voir ses propres RDV
+  (resource.data.patient_id == request.auth.uid) ||
+  // Médecin peut voir ses RDV attribués
+  (resource.data.medecin_id == request.auth.uid) ||
+  // Secrétaire peut voir les RDV de son établissement
+  (getUserRole(request.auth.uid) == 'secretaire' && 
+   resource.data.etablissement_id == getUserEtablissement(request.auth.uid))
+);
+
+// Écriture
+allow write: if request.auth != null && (
+  // Patient peut créer des RDV
+  (request.auth.uid == resource.data.patient_id && 
+   resource.data.statut == 'en_attente') ||
+  // Secrétaire peut modifier les RDV de son établissement
+  (getUserRole(request.auth.uid) == 'secretaire' && 
+   resource.data.etablissement_id == getUserEtablissement(request.auth.uid)) ||
+  // Médecin peut finaliser ses propres RDV
+  (getUserRole(request.auth.uid) == 'medecin' && 
+   resource.data.medecin_id == request.auth.uid)
+);
+```
+
+### Collection dossier_patient
+```javascript
+// Lecture
+allow read: if request.auth != null && (
+  // Patient peut voir son propre dossier
+  (resource.data.patient_id == request.auth.uid) ||
+  // Médecin peut voir les dossiers de ses patients (via RDV)
+  (getUserRole(request.auth.uid) == 'medecin' && 
+   hasRendezVousWithPatient(request.auth.uid, resource.data.patient_id)) ||
+  // Secrétaire peut consulter (lecture seule) les dossiers de son établissement
+  (getUserRole(request.auth.uid) == 'secretaire' && 
+   patientHasRdvInEtablissement(resource.data.patient_id, getUserEtablissement(request.auth.uid)))
+);
+
+// Écriture (seuls les médecins peuvent modifier)
+allow write: if request.auth != null && 
+  getUserRole(request.auth.uid) == 'medecin' && 
+  hasRendezVousWithPatient(request.auth.uid, resource.data.patient_id);
+```

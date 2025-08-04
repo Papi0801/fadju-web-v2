@@ -161,7 +161,8 @@ const RendezVousPage: React.FC = () => {
     if (selectedDate) {
       const selectedDateObj = new Date(selectedDate);
       filtered = filtered.filter(rdv => {
-        const rdvDate = rdv.date_rendez_vous.toDate();
+        if (!rdv.date_rdv) return false;
+        const rdvDate = rdv.date_rdv.toDate();
         return (
           rdvDate.getFullYear() === selectedDateObj.getFullYear() &&
           rdvDate.getMonth() === selectedDateObj.getMonth() &&
@@ -379,7 +380,7 @@ const RendezVousPage: React.FC = () => {
         </div>
 
         {/* Statistiques */}
-        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
+        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-2 sm:gap-3 md:gap-4">
           <Card className="hover:shadow-md transition-shadow">
             <CardContent className="p-4">
               <div className="flex items-center justify-between">
@@ -468,8 +469,8 @@ const RendezVousPage: React.FC = () => {
         {/* Filtres et recherche */}
         <Card>
           <CardContent className="p-6">
-            <div className="grid grid-cols-1 md:grid-cols-5 gap-4">
-              <div className="md:col-span-2">
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-3 sm:gap-4">
+              <div className="sm:col-span-2 md:col-span-3 lg:col-span-2">
                 <Input
                   placeholder="Rechercher par patient ou motif..."
                   value={searchTerm}
@@ -545,7 +546,7 @@ const RendezVousPage: React.FC = () => {
                   transition={{ duration: 0.3 }}
                 >
                   <Card className="hover:shadow-lg transition-shadow border-l-4 border-primary/20">
-                    <CardContent className="p-6">
+                    <CardContent className="p-3 sm:p-4 md:p-6">
                       <div className="space-y-4">
                         {/* En-tête avec patient et statut */}
                         <div className="flex items-start justify-between">
@@ -574,7 +575,7 @@ const RendezVousPage: React.FC = () => {
                           </div>
                           <div className="text-right">
                             <p className="text-sm font-medium text-foreground">
-                              {format(rdv.date_rendez_vous.toDate(), 'dd MMM yyyy', { locale: fr })}
+                              {rdv.date_rdv && format(rdv.date_rdv.toDate(), 'dd MMM yyyy', { locale: fr })}
                             </p>
                             <p className="text-sm text-muted-foreground">
                               {getHeureRdv(rdv)}
@@ -585,7 +586,7 @@ const RendezVousPage: React.FC = () => {
                         {/* Informations patient */}
                         {patient && (
                           <div className="bg-muted/30 rounded-lg p-4">
-                            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm">
+                            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-2 sm:gap-3 md:gap-4 text-xs sm:text-sm">
                               <div className="flex items-center space-x-2">
                                 <Phone className="w-4 h-4 text-muted-foreground" />
                                 <span>{patient.telephone}</span>
@@ -640,25 +641,27 @@ const RendezVousPage: React.FC = () => {
                         </div>
 
                         {/* Actions */}
-                        <div className="flex items-center justify-between pt-4 border-t">
-                          <div className="flex items-center space-x-2">
+                        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between pt-4 border-t gap-3">
+                          <div className="flex flex-wrap items-center gap-2 w-full sm:w-auto">
                             {rdv.statut === 'en_attente' && (
                               <>
                                 <Button
                                   variant="default"
                                   size="sm"
                                   onClick={() => handleConfirmRdv(rdv)}
-                                  className="bg-green-600 hover:bg-green-700"
+                                  className="bg-green-600 hover:bg-green-700 text-xs sm:text-sm"
                                 >
-                                  <UserCheck className="w-4 h-4 mr-1" />
-                                  Confirmer & Attribuer
+                                  <UserCheck className="w-3 h-3 sm:w-4 sm:h-4 mr-1" />
+                                  <span className="hidden sm:inline">Confirmer & Attribuer</span>
+                                  <span className="sm:hidden">Confirmer</span>
                                 </Button>
                                 <Button
                                   variant="outline"
                                   size="sm"
                                   onClick={() => setReportModal({isOpen: true, rdv})}
+                                  className="text-xs sm:text-sm"
                                 >
-                                  <CalendarX className="w-4 h-4 mr-1" />
+                                  <CalendarX className="w-3 h-3 sm:w-4 sm:h-4 mr-1" />
                                   Reporter
                                 </Button>
                               </>
@@ -668,8 +671,9 @@ const RendezVousPage: React.FC = () => {
                                 variant="outline"
                                 size="sm"
                                 onClick={() => setReportModal({isOpen: true, rdv})}
+                                className="text-xs sm:text-sm"
                               >
-                                <RotateCcw className="w-4 h-4 mr-1" />
+                                <RotateCcw className="w-3 h-3 sm:w-4 sm:h-4 mr-1" />
                                 Reporter
                               </Button>
                             )}
@@ -678,21 +682,22 @@ const RendezVousPage: React.FC = () => {
                                 variant="outline"
                                 size="sm"
                                 onClick={() => handleStatusChange(rdv.id, 'annule')}
-                                className="text-red-600 hover:text-red-700 border-red-200 hover:border-red-300"
+                                className="text-red-600 hover:text-red-700 border-red-200 hover:border-red-300 text-xs sm:text-sm"
                               >
-                                <XCircle className="w-4 h-4 mr-1" />
+                                <XCircle className="w-3 h-3 sm:w-4 sm:h-4 mr-1" />
                                 Annuler
                               </Button>
                             )}
                           </div>
                           
-                          <div className="flex items-center space-x-2">
+                          <div className="flex items-center gap-2 w-full sm:w-auto justify-end">
                             <Button
                               variant="ghost"
                               size="sm"
                               onClick={() => handleViewPatient(rdv.patient_id)}
+                              className="text-xs sm:text-sm"
                             >
-                              <User className="w-4 h-4 mr-1" />
+                              <User className="w-3 h-3 sm:w-4 sm:h-4 mr-1" />
                               Dossier
                             </Button>
                             
@@ -771,7 +776,7 @@ const RendezVousPage: React.FC = () => {
               />
             </div>
             
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
               <div>
                 <label className="block text-sm font-medium mb-2">Heure début *</label>
                 <Input
@@ -822,8 +827,7 @@ const RendezVousPage: React.FC = () => {
           isOpen={patientModal.isOpen} 
           onClose={() => setPatientModal({isOpen: false, patient: null})}
           title="Dossier médical du patient"
-          size="xl"
-          className="max-h-[80vh] overflow-y-auto"
+          size="lg"
         >
           {patientModal.patient && (
             <div className="space-y-6">
@@ -833,26 +837,26 @@ const RendezVousPage: React.FC = () => {
                   <User className="w-5 h-5" />
                   <span>Informations personnelles</span>
                 </h3>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
                   <div>
-                    <p className="text-sm font-medium text-muted-foreground">Nom complet</p>
-                    <p className="font-medium">{patientModal.patient.prenom} {patientModal.patient.nom}</p>
+                    <p className="text-xs sm:text-sm font-medium text-muted-foreground">Nom complet</p>
+                    <p className="text-sm sm:text-base font-medium">{patientModal.patient.prenom} {patientModal.patient.nom}</p>
                   </div>
                   <div>
-                    <p className="text-sm font-medium text-muted-foreground">Âge</p>
-                    <p className="font-medium">{dossierPatientService.calculateAge(patientModal.patient.date_naissance.toDate())} ans ({patientModal.patient.genre})</p>
+                    <p className="text-xs sm:text-sm font-medium text-muted-foreground">Âge</p>
+                    <p className="text-sm sm:text-base font-medium">{dossierPatientService.calculateAge(patientModal.patient.date_naissance.toDate())} ans ({patientModal.patient.genre})</p>
                   </div>
                   <div>
-                    <p className="text-sm font-medium text-muted-foreground">Téléphone</p>
-                    <p className="font-medium">{patientModal.patient.telephone}</p>
+                    <p className="text-xs sm:text-sm font-medium text-muted-foreground">Téléphone</p>
+                    <p className="text-sm sm:text-base font-medium">{patientModal.patient.telephone}</p>
                   </div>
                   <div>
-                    <p className="text-sm font-medium text-muted-foreground">Email</p>
-                    <p className="font-medium">{patientModal.patient.email}</p>
+                    <p className="text-xs sm:text-sm font-medium text-muted-foreground">Email</p>
+                    <p className="text-sm sm:text-base font-medium break-all">{patientModal.patient.email}</p>
                   </div>
-                  <div className="md:col-span-2">
-                    <p className="text-sm font-medium text-muted-foreground">Adresse</p>
-                    <p className="font-medium">{patientModal.patient.adresse}</p>
+                  <div className="sm:col-span-2">
+                    <p className="text-xs sm:text-sm font-medium text-muted-foreground">Adresse</p>
+                    <p className="text-sm sm:text-base font-medium">{patientModal.patient.adresse}</p>
                   </div>
                 </div>
               </div>
@@ -863,32 +867,32 @@ const RendezVousPage: React.FC = () => {
                   <Heart className="w-5 h-5 text-red-500" />
                   <span>Informations médicales</span>
                 </h3>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
                   <div>
-                    <p className="text-sm font-medium text-muted-foreground">Groupe sanguin</p>
-                    <p className="font-medium text-red-600">{patientModal.patient.groupe_sanguin}</p>
+                    <p className="text-xs sm:text-sm font-medium text-muted-foreground">Groupe sanguin</p>
+                    <p className="text-sm sm:text-base font-medium text-red-600">{patientModal.patient.groupe_sanguin}</p>
                   </div>
                   <div>
-                    <p className="text-sm font-medium text-muted-foreground">Poids</p>
-                    <p className="font-medium">{patientModal.patient.poids} kg</p>
+                    <p className="text-xs sm:text-sm font-medium text-muted-foreground">Poids</p>
+                    <p className="text-sm sm:text-base font-medium">{patientModal.patient.poids} kg</p>
                   </div>
                   <div>
-                    <p className="text-sm font-medium text-muted-foreground">Taille</p>
-                    <p className="font-medium">{patientModal.patient.taille} cm</p>
+                    <p className="text-xs sm:text-sm font-medium text-muted-foreground">Taille</p>
+                    <p className="text-sm sm:text-base font-medium">{patientModal.patient.taille} cm</p>
                   </div>
                   <div>
-                    <p className="text-sm font-medium text-muted-foreground">Personne à contacter</p>
-                    <p className="font-medium">{patientModal.patient.personne_a_contacter}</p>
+                    <p className="text-xs sm:text-sm font-medium text-muted-foreground">Personne à contacter</p>
+                    <p className="text-sm sm:text-base font-medium break-all">{patientModal.patient.personne_a_contacter}</p>
                   </div>
-                  <div className="md:col-span-2">
-                    <p className="text-sm font-medium text-muted-foreground">Allergies</p>
-                    <p className="font-medium text-orange-600">
+                  <div className="sm:col-span-2">
+                    <p className="text-xs sm:text-sm font-medium text-muted-foreground">Allergies</p>
+                    <p className="text-sm sm:text-base font-medium text-orange-600">
                       {patientModal.patient.allergie || 'Aucune allergie connue'}
                     </p>
                   </div>
-                  <div className="md:col-span-2">
-                    <p className="text-sm font-medium text-muted-foreground">Maladies chroniques</p>
-                    <p className="font-medium">
+                  <div className="sm:col-span-2">
+                    <p className="text-xs sm:text-sm font-medium text-muted-foreground">Maladies chroniques</p>
+                    <p className="text-sm sm:text-base font-medium">
                       {patientModal.patient.maladie_chronique || 'Aucune maladie chronique'}
                     </p>
                   </div>

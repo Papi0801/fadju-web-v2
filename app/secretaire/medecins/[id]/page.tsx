@@ -113,12 +113,14 @@ const MedecinDetailPage: React.FC = () => {
     tomorrow.setDate(tomorrow.getDate() + 1);
 
     const todayRdv = rendezVous.filter(rdv => {
-      const rdvDate = rdv.date_rendez_vous.toDate();
+      if (!rdv.date_rdv) return false;
+      const rdvDate = rdv.date_rdv.toDate();
       return rdvDate >= today && rdvDate < tomorrow;
     });
 
     const weekRdv = rendezVous.filter(rdv => {
-      const rdvDate = rdv.date_rendez_vous.toDate();
+      if (!rdv.date_rdv) return false;
+      const rdvDate = rdv.date_rdv.toDate();
       const weekFromNow = new Date(today);
       weekFromNow.setDate(weekFromNow.getDate() + 7);
       return rdvDate >= today && rdvDate < weekFromNow;
@@ -381,43 +383,56 @@ const MedecinDetailPage: React.FC = () => {
           </CardContent>
         </Card>
 
-        {/* Derniers rendez-vous */}
-        {rendezVous.length > 0 && (
-          <Card>
-            <CardHeader>
-              <CardTitle>Derniers rendez-vous</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-4">
-                {rendezVous.slice(0, 5).map((rdv) => (
-                  <div key={rdv.id} className="flex items-center justify-between p-4 border rounded-lg">
-                    <div className="flex items-center space-x-4">
-                      <div className="w-2 h-2 rounded-full bg-blue-500" />
-                      <div>
-                        <p className="font-medium">
-                          {rdv.date_rendez_vous.toDate().toLocaleDateString('fr-FR')}
-                        </p>
-                        <p className="text-sm text-muted-foreground">
-                          {rdv.heure_debut} - {rdv.heure_fin} • {rdv.motif}
-                        </p>
+        {/* Derniers rendez-vous terminés */}
+        {(() => {
+          const rendezVousTermines = rendezVous.filter(rdv => 
+            rdv.statut === 'termine' || rdv.statut === 'terminee'
+          ).sort((a, b) => 
+            (b.date_rdv?.toDate().getTime() || 0) - (a.date_rdv?.toDate().getTime() || 0)
+          );
+          
+          return (
+            <Card>
+              <CardHeader>
+                <CardTitle>Historique des consultations</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-4">
+                  {rendezVousTermines.length > 0 ? (
+                    rendezVousTermines.slice(0, 5).map((rdv) => (
+                      <div key={rdv.id} className="flex items-center justify-between p-4 border rounded-lg">
+                        <div className="flex items-center space-x-4">
+                          <div className="w-2 h-2 rounded-full bg-green-500" />
+                          <div>
+                            <p className="font-medium">
+                              {rdv.date_rdv?.toDate().toLocaleDateString('fr-FR', {
+                                weekday: 'long',
+                                year: 'numeric',
+                                month: 'long',
+                                day: 'numeric'
+                              })}
+                            </p>
+                            <p className="text-sm text-muted-foreground">
+                              {rdv.heure_debut ? `${rdv.heure_debut} - ${rdv.heure_fin}` : (rdv as any).creneau_horaire || 'Heure non définie'} • {rdv.motif}
+                            </p>
+                          </div>
+                        </div>
+                        <Badge variant="default">
+                          <CheckCircle className="w-3 h-3 mr-1" />
+                          Terminé
+                        </Badge>
                       </div>
-                    </div>
-                    <Badge variant={
-                      (rdv.statut === 'confirme' || rdv.statut === 'confirmee') ? 'success' : 
-                      (rdv.statut === 'termine' || rdv.statut === 'terminee') ? 'default' :
-                      rdv.statut === 'reportee' ? 'secondary' : 'outline'
-                    }>
-                      {rdv.statut === 'confirmee' ? 'Confirmé' : 
-                       rdv.statut === 'terminee' ? 'Terminé' :
-                       rdv.statut === 'reportee' ? 'Reporté' :
-                       rdv.statut === 'annulee' ? 'Annulé' : rdv.statut}
-                    </Badge>
-                  </div>
-                ))}
-              </div>
-            </CardContent>
-          </Card>
-        )}
+                    ))
+                  ) : (
+                    <p className="text-center text-muted-foreground py-4">
+                      Aucune consultation terminée pour le moment
+                    </p>
+                  )}
+                </div>
+              </CardContent>
+            </Card>
+          );
+        })()}
       </motion.div>
     </DashboardLayout>
   );

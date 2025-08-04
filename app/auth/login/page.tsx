@@ -148,10 +148,10 @@ const SharedLoginPage: React.FC = () => {
                   <Heart className="w-8 h-8 text-white" />
                 </div>
               </motion.div>
-              <CardTitle>
-                <h1 className="text-2xl font-bold text-foreground">
+              <CardTitle className="text-center">
+                <div className="text-2xl font-bold text-foreground">
                   Connexion Professionnelle
-                </h1>
+                </div>
                 <p className="text-muted-foreground mt-2">
                   Secrétaires & Médecins
                 </p>

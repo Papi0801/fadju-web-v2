@@ -124,22 +124,30 @@ export const dossierPatientService = {
   },
 
   // Récupérer les résultats médicaux d'un patient
-  async getResultatsMedicaux(patientId: string): Promise<ResultatMedical[]> {
+  async getResultatsMedicaux(patientId: string): Promise<any[]> {
     try {
-      const q = query(
-        collection(db, RESULTATS_COLLECTION),
-        where('patient_id', '==', patientId),
-        orderBy('date_creation', 'desc')
-      );
-      
-      const querySnapshot = await getDocs(q);
-      return querySnapshot.docs.map(doc => ({
-        id: doc.id,
-        ...convertTimestamp(doc.data()),
-      })) as ResultatMedical[];
+      // Utiliser le nouveau service de résultats médicaux
+      const { resultatsMedicauxService } = await import('./resultats-medicaux-service');
+      return await resultatsMedicauxService.getResultatsByPatient(patientId);
     } catch (error) {
       console.error('Erreur lors de la récupération des résultats médicaux:', error);
-      throw error;
+      // Fallback vers l'ancien système si le nouveau n'est pas disponible
+      try {
+        const q = query(
+          collection(db, RESULTATS_COLLECTION),
+          where('patient_id', '==', patientId),
+          orderBy('date_creation', 'desc')
+        );
+        
+        const querySnapshot = await getDocs(q);
+        return querySnapshot.docs.map(doc => ({
+          id: doc.id,
+          ...convertTimestamp(doc.data()),
+        }));
+      } catch (fallbackError) {
+        console.error('Erreur fallback:', fallbackError);
+        return [];
+      }
     }
   },
 

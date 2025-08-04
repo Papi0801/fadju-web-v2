@@ -110,6 +110,11 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen = true, onClose, className }) 
           icon: Calendar,
         },
         {
+          name: 'Historique médical',
+          href: '/medecin/historique-medical',
+          icon: ClipboardList,
+        },
+        {
           name: 'Mes patients',
           href: '/medecin/patients',
           icon: Users,

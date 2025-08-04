@@ -72,15 +72,15 @@ const MedecinPatientsPage: React.FC = () => {
         if (dossier) {
           // Calculer les statistiques pour ce patient
           const rdvPatient = rendezVous.filter(rdv => rdv.patient_id === patientId);
-          const rdvPasses = rdvPatient.filter(rdv => rdv.date_rendez_vous.toDate() < new Date());
-          const rdvFuturs = rdvPatient.filter(rdv => rdv.date_rendez_vous.toDate() > new Date());
+          const rdvPasses = rdvPatient.filter(rdv => rdv.date_rdv && rdv.date_rdv.toDate() < new Date());
+          const rdvFuturs = rdvPatient.filter(rdv => rdv.date_rdv && rdv.date_rdv.toDate() > new Date());
           
           const dernierRdv = rdvPasses.length > 0 
-            ? rdvPasses.sort((a, b) => b.date_rendez_vous.toMillis() - a.date_rendez_vous.toMillis())[0].date_rendez_vous.toDate()
+            ? rdvPasses.sort((a, b) => b.date_rdv.toDate().getTime() - a.date_rdv.toDate().getTime())[0].date_rdv.toDate()
             : undefined;
             
           const prochainRdv = rdvFuturs.length > 0
-            ? rdvFuturs.sort((a, b) => a.date_rendez_vous.toMillis() - b.date_rendez_vous.toMillis())[0].date_rendez_vous.toDate()
+            ? rdvFuturs.sort((a, b) => a.date_rdv.toDate().getTime() - b.date_rdv.toDate().getTime())[0].date_rdv.toDate()
             : undefined;
 
           patientsData.push({

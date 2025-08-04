@@ -12,7 +12,11 @@ import {
   CheckCircle,
   TrendingUp,
   FileText,
-  User
+  User,
+  CalendarDays,
+  ClipboardList,
+  Stethoscope,
+  UserCheck
 } from 'lucide-react';
 
 import { useAuthStore, useThemeStore } from '@/store';
@@ -64,7 +68,8 @@ const SecretaireDashboardPage: React.FC = () => {
         tomorrow.setDate(tomorrow.getDate() + 1);
 
         const rendezVousAujourdhui = tousLesRdv.filter(rdv => {
-          const rdvDate = rdv.date_rendez_vous.toDate();
+          if (!rdv.date_rdv) return false;
+          const rdvDate = rdv.date_rdv.toDate();
           return rdvDate >= today && rdvDate < tomorrow;
         }).length;
 
@@ -246,79 +251,129 @@ const SecretaireDashboardPage: React.FC = () => {
 
         {/* Statistiques */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 lg:gap-6">
-          <Card hover className={etablissementStatus !== 'valide' ? 'opacity-60' : ''}>
-            <CardContent className="p-6">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-muted-foreground text-sm font-medium">Rendez-vous aujourd'hui</p>
-                  <p className="text-2xl font-bold text-foreground mt-1">
-                    {etablissementStatus === 'valide' ? stats.rendezVousAujourdhui : '-'}
-                  </p>
-                  {etablissementStatus !== 'valide' && (
-                    <p className="text-xs text-muted-foreground mt-1">Disponible après validation</p>
-                  )}
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.1 }}
+          >
+            <Card hover className={`${etablissementStatus !== 'valide' ? 'opacity-60' : ''} border-l-4 border-l-blue-500`}>
+              <CardContent className="p-6">
+                <div className="flex items-center justify-between">
+                  <div className="flex-1">
+                    <div className="flex items-center space-x-2 mb-2">
+                      <CalendarDays className="w-4 h-4 text-blue-600" />
+                      <p className="text-sm font-semibold text-muted-foreground uppercase tracking-wider">
+                        Aujourd'hui
+                      </p>
+                    </div>
+                    <p className="text-3xl font-bold text-foreground">
+                      {etablissementStatus === 'valide' ? stats.rendezVousAujourdhui : '-'}
+                    </p>
+                    <p className="text-xs text-muted-foreground mt-2">
+                      {etablissementStatus === 'valide' ? 'Rendez-vous programmés' : 'Disponible après validation'}
+                    </p>
+                  </div>
+                  <div className="p-4 rounded-full bg-gradient-to-br from-blue-50 to-blue-100 dark:from-blue-900/20 dark:to-blue-800/20">
+                    <CalendarDays className="w-8 h-8 text-blue-600" />
+                  </div>
                 </div>
-                <div className={`p-3 rounded-lg ${etablissementStatus === 'valide' ? 'bg-primary/10 text-primary' : 'bg-muted text-muted-foreground'}`}>
-                  <Calendar className="w-6 h-6" />
-                </div>
-              </div>
-            </CardContent>
-          </Card>
+              </CardContent>
+            </Card>
+          </motion.div>
 
-          <Card hover className={etablissementStatus !== 'valide' ? 'opacity-60' : ''}>
-            <CardContent className="p-6">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-muted-foreground text-sm font-medium">En attente confirmation</p>
-                  <p className="text-2xl font-bold text-foreground mt-1">
-                    {etablissementStatus === 'valide' ? stats.enAttente : '-'}
-                  </p>
-                  {etablissementStatus !== 'valide' && (
-                    <p className="text-xs text-muted-foreground mt-1">Disponible après validation</p>
-                  )}
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.2 }}
+          >
+            <Card hover className={`${etablissementStatus !== 'valide' ? 'opacity-60' : ''} border-l-4 border-l-amber-500`}>
+              <CardContent className="p-6">
+                <div className="flex items-center justify-between">
+                  <div className="flex-1">
+                    <div className="flex items-center space-x-2 mb-2">
+                      <ClipboardList className="w-4 h-4 text-amber-600" />
+                      <p className="text-sm font-semibold text-muted-foreground uppercase tracking-wider">
+                        En attente
+                      </p>
+                    </div>
+                    <p className="text-3xl font-bold text-foreground">
+                      {etablissementStatus === 'valide' ? stats.enAttente : '-'}
+                    </p>
+                    <p className="text-xs text-muted-foreground mt-2">
+                      {etablissementStatus === 'valide' ? 'À confirmer' : 'Disponible après validation'}
+                    </p>
+                  </div>
+                  <div className="p-4 rounded-full bg-gradient-to-br from-amber-50 to-amber-100 dark:from-amber-900/20 dark:to-amber-800/20">
+                    <Clock className="w-8 h-8 text-amber-600" />
+                  </div>
                 </div>
-                <div className={`p-3 rounded-lg ${etablissementStatus === 'valide' ? 'bg-yellow-100 text-yellow-600' : 'bg-muted text-muted-foreground'}`}>
-                  <Clock className="w-6 h-6" />
-                </div>
-              </div>
-            </CardContent>
-          </Card>
+              </CardContent>
+            </Card>
+          </motion.div>
 
-          <Card hover>
-            <CardContent className="p-6">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-muted-foreground text-sm font-medium">Médecins actifs</p>
-                  <p className="text-2xl font-bold text-foreground mt-1">{stats.medecinActifs}</p>
-                  <p className="text-xs text-muted-foreground mt-1">
-                    {etablissementStatus === 'valide' ? 'Aucun médecin ajouté' : 'Ajout possible après validation'}
-                  </p>
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.3 }}
+          >
+            <Card hover className={`border-l-4 border-l-emerald-500`}>
+              <CardContent className="p-6">
+                <div className="flex items-center justify-between">
+                  <div className="flex-1">
+                    <div className="flex items-center space-x-2 mb-2">
+                      <Stethoscope className="w-4 h-4 text-emerald-600" />
+                      <p className="text-sm font-semibold text-muted-foreground uppercase tracking-wider">
+                        Médecins
+                      </p>
+                    </div>
+                    <p className="text-3xl font-bold text-foreground">
+                      {stats.medecinActifs}
+                    </p>
+                    <p className="text-xs text-muted-foreground mt-2">
+                      {stats.medecinActifs > 0 
+                        ? 'Médecins actifs' 
+                        : etablissementStatus === 'valide' 
+                          ? 'Aucun médecin' 
+                          : 'Après validation'}
+                    </p>
+                  </div>
+                  <div className="p-4 rounded-full bg-gradient-to-br from-emerald-50 to-emerald-100 dark:from-emerald-900/20 dark:to-emerald-800/20">
+                    <Stethoscope className="w-8 h-8 text-emerald-600" />
+                  </div>
                 </div>
-                <div className="p-3 rounded-lg bg-green-100 text-green-600">
-                  <Users className="w-6 h-6" />
-                </div>
-              </div>
-            </CardContent>
-          </Card>
+              </CardContent>
+            </Card>
+          </motion.div>
 
-          <Card hover className={etablissementStatus !== 'valide' ? 'opacity-60' : ''}>
-            <CardContent className="p-6">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-muted-foreground text-sm font-medium">Patients suivis</p>
-                  <p className="text-2xl font-bold text-foreground mt-1">
-                    {etablissementStatus === 'valide' ? stats.patientsSuivis : '-'}
-                  </p>
-                  {etablissementStatus !== 'valide' && (
-                    <p className="text-xs text-muted-foreground mt-1">Disponible après validation</p>
-                  )}
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.4 }}
+          >
+            <Card hover className={`${etablissementStatus !== 'valide' ? 'opacity-60' : ''} border-l-4 border-l-purple-500`}>
+              <CardContent className="p-6">
+                <div className="flex items-center justify-between">
+                  <div className="flex-1">
+                    <div className="flex items-center space-x-2 mb-2">
+                      <UserCheck className="w-4 h-4 text-purple-600" />
+                      <p className="text-sm font-semibold text-muted-foreground uppercase tracking-wider">
+                        Patients
+                      </p>
+                    </div>
+                    <p className="text-3xl font-bold text-foreground">
+                      {etablissementStatus === 'valide' ? stats.patientsSuivis : '-'}
+                    </p>
+                    <p className="text-xs text-muted-foreground mt-2">
+                      {etablissementStatus === 'valide' ? 'Patients suivis' : 'Disponible après validation'}
+                    </p>
+                  </div>
+                  <div className="p-4 rounded-full bg-gradient-to-br from-purple-50 to-purple-100 dark:from-purple-900/20 dark:to-purple-800/20">
+                    <Users className="w-8 h-8 text-purple-600" />
+                  </div>
                 </div>
-                <div className={`p-3 rounded-lg ${etablissementStatus === 'valide' ? 'bg-blue-100 text-blue-600' : 'bg-muted text-muted-foreground'}`}>
-                  <TrendingUp className="w-6 h-6" />
-                </div>
-              </div>
-            </CardContent>
-          </Card>
+              </CardContent>
+            </Card>
+          </motion.div>
         </div>
 
         {/* Actions rapides */}

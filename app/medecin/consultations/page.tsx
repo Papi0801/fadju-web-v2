@@ -37,9 +37,12 @@ import {
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
+  Modal,
+  Textarea,
 } from '@/components/ui';
 import { rendezVousService } from '@/lib/firebase/rendez-vous-service';
 import { dossierPatientService } from '@/lib/firebase/dossier-patient';
+import { resultatsMedicauxService } from '@/lib/firebase/resultats-medicaux-service';
 import { RendezVous, DossierPatient } from '@/types';
 import { format } from 'date-fns';
 import { fr } from 'date-fns/locale';
@@ -55,6 +58,16 @@ const ConsultationsPage: React.FC = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedStatut, setSelectedStatut] = useState('');
   const [selectedDate, setSelectedDate] = useState('');
+  const [showFinishModal, setShowFinishModal] = useState(false);
+  const [selectedRdv, setSelectedRdv] = useState<RendezVous | null>(null);
+  const [consultationData, setConsultationData] = useState({
+    observations: '',
+    ordonnance: '',
+    analyses: '',
+    typeAnalyse: '',
+    nomAnalyse: '',
+    resultatsAnalyse: ''
+  });
 
   useEffect(() => {
     fetchRendezVous();
@@ -124,7 +137,7 @@ const ConsultationsPage: React.FC = () => {
     if (selectedDate) {
       const selectedDateObj = new Date(selectedDate);
       filtered = filtered.filter(rdv => {
-        const rdvDate = rdv.date_rendez_vous.toDate();
+        const rdvDate = rdv.date_rdv.toDate();
         return (
           rdvDate.getFullYear() === selectedDateObj.getFullYear() &&
           rdvDate.getMonth() === selectedDateObj.getMonth() &&
@@ -136,25 +149,123 @@ const ConsultationsPage: React.FC = () => {
     setFilteredRendezVous(filtered);
   };
 
-  const handleStatusChange = async (rdvId: string, newStatus: 'termine' | 'annule') => {
+  const handleStatusChange = async (rdvId: string, newStatus: 'terminee' | 'annulee') => {
     try {
-      // TODO: Implémenter la mise à jour du statut
-      toast.success(`Consultation ${newStatus === 'termine' ? 'marquée comme terminée' : 'annulée'}`);
-      fetchRendezVous();
+      if (newStatus === 'terminee') {
+        // Vérifier si le rendez-vous est passé
+        const rdv = rendezVous.find(r => r.id === rdvId);
+        if (!rdv) return;
+        
+        const rdvDate = rdv.date_rdv.toDate();
+        const now = new Date();
+        
+        if (rdvDate > now) {
+          toast.error('Impossible de marquer comme terminé un rendez-vous futur');
+          return;
+        }
+        
+        // Ouvrir le modal pour saisir les informations
+        setSelectedRdv(rdv);
+        setShowFinishModal(true);
+      } else {
+        // Annuler directement
+        await rendezVousService.updateStatut(rdvId, 'annulee');
+        toast.success('Consultation annulée');
+        fetchRendezVous();
+      }
     } catch (error) {
       toast.error('Erreur lors de la mise à jour du statut');
     }
   };
 
+  const handleFinishConsultation = async () => {
+    if (!selectedRdv || !user) return;
+    
+    try {
+      // Mettre à jour le statut du rendez-vous
+      await rendezVousService.updateStatut(selectedRdv.id, 'terminee');
+      
+      // Créer l'enregistrement dans les résultats médicaux
+      const dateConsultation = selectedRdv.date_rdv.toDate();
+      
+      if (consultationData.typeAnalyse && consultationData.resultatsAnalyse) {
+        // Si c'est une analyse, créer un résultat d'analyse
+        await resultatsMedicauxService.creerResultatAnalyse({
+          patient_id: selectedRdv.patient_id,
+          medecin_id: user.id,
+          nom_medecin: `Dr. ${user.prenom} ${user.nom}`,
+          rendez_vous_id: selectedRdv.id,
+          date_consultation: dateConsultation,
+          type_analyse: consultationData.typeAnalyse,
+          nom_analyse: consultationData.nomAnalyse,
+          resultats_analyse: consultationData.resultatsAnalyse,
+          interpretation: consultationData.observations,
+        });
+      } else {
+        // Sinon, créer un résultat de consultation
+        await resultatsMedicauxService.creerResultatConsultation({
+          patient_id: selectedRdv.patient_id,
+          medecin_id: user.id,
+          nom_medecin: `Dr. ${user.prenom} ${user.nom}`,
+          rendez_vous_id: selectedRdv.id,
+          date_consultation: dateConsultation,
+          observations: consultationData.observations,
+          ordonnance: consultationData.ordonnance || undefined,
+          analyses_demandees: consultationData.analyses || undefined,
+        });
+      }
+      
+      // Mettre à jour le dossier patient avec les nouvelles informations
+      const patient = patients.get(selectedRdv.patient_id);
+      if (patient) {
+        const updateData: any = {
+          derniere_consultation: new Date(),
+          derniere_observation: consultationData.observations,
+        };
+        
+        // Ajouter l'ordonnance si renseignée
+        if (consultationData.ordonnance) {
+          updateData.dernieres_ordonnances = consultationData.ordonnance;
+        }
+        
+        // Ajouter les analyses si c'est une analyse
+        if (consultationData.typeAnalyse && consultationData.resultatsAnalyse) {
+          updateData.derniers_resultats = {
+            type: consultationData.typeAnalyse,
+            nom: consultationData.nomAnalyse,
+            resultats: consultationData.resultatsAnalyse,
+            date: new Date(),
+            medecin_id: user.id
+          };
+        }
+        
+        await dossierPatientService.update(patient.id, updateData);
+      }
+      
+      toast.success('Consultation terminée et enregistrée dans l\'historique');
+      setShowFinishModal(false);
+      setSelectedRdv(null);
+      setConsultationData({
+        observations: '',
+        ordonnance: '',
+        analyses: '',
+        typeAnalyse: '',
+        nomAnalyse: '',
+        resultatsAnalyse: ''
+      });
+      fetchRendezVous();
+    } catch (error) {
+      console.error('Erreur:', error);
+      toast.error('Erreur lors de la finalisation de la consultation');
+    }
+  };
+
   const getStatutBadgeVariant = (statut: string) => {
     switch (statut) {
-      case 'confirme':
       case 'confirmee':
         return 'primary';
-      case 'termine':
       case 'terminee':
         return 'success';
-      case 'annule':
       case 'annulee':
         return 'destructive';
       case 'reportee':
@@ -166,13 +277,10 @@ const ConsultationsPage: React.FC = () => {
 
   const getStatutLabel = (statut: string) => {
     switch (statut) {
-      case 'confirme':
       case 'confirmee':
         return 'Confirmé';
-      case 'termine':
       case 'terminee':
         return 'Terminé';
-      case 'annule':
       case 'annulee':
         return 'Annulé';
       case 'reportee':
@@ -184,13 +292,10 @@ const ConsultationsPage: React.FC = () => {
 
   const getStatutIcon = (statut: string) => {
     switch (statut) {
-      case 'confirme':
       case 'confirmee':
         return <CheckCircle className="w-4 h-4" />;
-      case 'termine':
       case 'terminee':
         return <CheckCircle className="w-4 h-4" />;
-      case 'annule':
       case 'annulee':
         return <XCircle className="w-4 h-4" />;
       case 'reportee':
@@ -202,7 +307,7 @@ const ConsultationsPage: React.FC = () => {
 
   const groupByDate = (rdvList: RendezVous[]) => {
     const grouped = rdvList.reduce((groups, rdv) => {
-      const date = format(rdv.date_rendez_vous.toDate(), 'yyyy-MM-dd');
+      const date = format(rdv.date_rdv.toDate(), 'yyyy-MM-dd');
       if (!groups[date]) {
         groups[date] = [];
       }
@@ -218,15 +323,15 @@ const ConsultationsPage: React.FC = () => {
     return sortedDates.map(date => ({
       date,
       rdvs: grouped[date].sort((a, b) => 
-        a.date_rendez_vous.toMillis() - b.date_rendez_vous.toMillis()
+        a.date_rdv.toDate().getTime() - b.date_rdv.toDate().getTime()
       )
     }));
   };
 
   const stats = {
     total: rendezVous.length,
-    confirmes: rendezVous.filter(rdv => rdv.statut === 'confirme' || rdv.statut === 'confirmee').length,
-    termines: rendezVous.filter(rdv => rdv.statut === 'termine' || rdv.statut === 'terminee').length,
+    confirmes: rendezVous.filter(rdv => rdv.statut === 'confirmee').length,
+    termines: rendezVous.filter(rdv => rdv.statut === 'terminee').length,
     reportes: rendezVous.filter(rdv => rdv.statut === 'reportee').length,
   };
 
@@ -427,7 +532,7 @@ const ConsultationsPage: React.FC = () => {
                                   <div className="flex items-center space-x-4 mt-1 text-sm text-muted-foreground">
                                     <div className="flex items-center space-x-1">
                                       <Clock className="w-4 h-4" />
-                                      <span>{rdv.creneau_horaire}</span>
+                                      <span>{rdv.heure_debut} - {rdv.heure_fin}</span>
                                     </div>
                                     {getPatientInfo(rdv.patient_id)?.telephone && (
                                       <div className="flex items-center space-x-1">
@@ -452,12 +557,12 @@ const ConsultationsPage: React.FC = () => {
 
                             <div className="flex items-center justify-between ml-15">
                               <div className="flex items-center space-x-2">
-                                {rdv.statut === 'confirme' && (
+                                {rdv.statut === 'confirmee' && (
                                   <>
                                     <Button
                                       variant="outline"
                                       size="sm"
-                                      onClick={() => handleStatusChange(rdv.id, 'termine')}
+                                      onClick={() => handleStatusChange(rdv.id, 'terminee')}
                                       className="text-green-600 hover:text-green-700"
                                     >
                                       <CheckCircle className="w-4 h-4 mr-1" />
@@ -466,7 +571,7 @@ const ConsultationsPage: React.FC = () => {
                                     <Button
                                       variant="outline"
                                       size="sm"
-                                      onClick={() => handleStatusChange(rdv.id, 'annule')}
+                                      onClick={() => handleStatusChange(rdv.id, 'annulee')}
                                       className="text-red-600 hover:text-red-700"
                                     >
                                       <XCircle className="w-4 h-4 mr-1" />
@@ -496,7 +601,14 @@ const ConsultationsPage: React.FC = () => {
                                     Modifier
                                   </DropdownMenuItem>
                                   <DropdownMenuItem
-                                    onClick={() => router.push(`/medecin/patients/${rdv.patient_id}`)}
+                                    onClick={() => {
+                                      const patient = patients.get(rdv.patient_id);
+                                      if (patient && patient.id) {
+                                        router.push(`/medecin/patients/${patient.id}`);
+                                      } else {
+                                        toast.error('Dossier patient introuvable');
+                                      }
+                                    }}
                                   >
                                     <FileText className="w-4 h-4 mr-2" />
                                     Dossier patient
@@ -514,6 +626,147 @@ const ConsultationsPage: React.FC = () => {
             ))}
           </div>
         )}
+
+        {/* Modal de finalisation de consultation */}
+        <Modal
+          isOpen={showFinishModal}
+          onClose={() => {
+            setShowFinishModal(false);
+            setSelectedRdv(null);
+            setConsultationData({
+              observations: '',
+              ordonnance: '',
+              analyses: '',
+              typeAnalyse: '',
+              nomAnalyse: '',
+              resultatsAnalyse: ''
+            });
+          }}
+          title="Finaliser la consultation"
+          size="lg"
+        >
+          <div className="space-y-4">
+            {selectedRdv && (
+              <>
+                <div className="bg-muted/30 rounded-lg p-4">
+                  <h3 className="font-semibold mb-2">Patient</h3>
+                  <p className="text-sm">{getPatientName(selectedRdv.patient_id)}</p>
+                  <p className="text-sm text-muted-foreground mt-1">Motif: {selectedRdv.motif}</p>
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium mb-2">
+                    Observations de la consultation *
+                  </label>
+                  <Textarea
+                    value={consultationData.observations}
+                    onChange={(e) => setConsultationData({...consultationData, observations: e.target.value})}
+                    placeholder="Décrivez les observations de la consultation..."
+                    rows={4}
+                    required
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium mb-2">
+                    Ordonnance (si nécessaire)
+                  </label>
+                  <Textarea
+                    value={consultationData.ordonnance}
+                    onChange={(e) => setConsultationData({...consultationData, ordonnance: e.target.value})}
+                    placeholder="Listez les médicaments prescrits..."
+                    rows={3}
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium mb-2">
+                    Analyses à effectuer (si nécessaire)
+                  </label>
+                  <Textarea
+                    value={consultationData.analyses}
+                    onChange={(e) => setConsultationData({...consultationData, analyses: e.target.value})}
+                    placeholder="Listez les analyses demandées..."
+                    rows={2}
+                  />
+                </div>
+
+                {/* Section pour les résultats d'analyse si c'est une analyse */}
+                {selectedRdv.motif?.toLowerCase().includes('analyse') && (
+                  <>
+                    <div className="border-t pt-4">
+                      <h3 className="font-semibold mb-3">Résultats d'analyse</h3>
+                      
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                        <div>
+                          <label className="block text-sm font-medium mb-2">
+                            Type d'analyse
+                          </label>
+                          <Input
+                            value={consultationData.typeAnalyse}
+                            onChange={(e) => setConsultationData({...consultationData, typeAnalyse: e.target.value})}
+                            placeholder="Ex: Sanguin, Urinaire..."
+                          />
+                        </div>
+                        
+                        <div>
+                          <label className="block text-sm font-medium mb-2">
+                            Nom de l'analyse
+                          </label>
+                          <Input
+                            value={consultationData.nomAnalyse}
+                            onChange={(e) => setConsultationData({...consultationData, nomAnalyse: e.target.value})}
+                            placeholder="Ex: NFS, Glycémie..."
+                          />
+                        </div>
+                      </div>
+                      
+                      <div className="mt-3">
+                        <label className="block text-sm font-medium mb-2">
+                          Résultats
+                        </label>
+                        <Textarea
+                          value={consultationData.resultatsAnalyse}
+                          onChange={(e) => setConsultationData({...consultationData, resultatsAnalyse: e.target.value})}
+                          placeholder="Détaillez les résultats de l'analyse..."
+                          rows={3}
+                        />
+                      </div>
+                    </div>
+                  </>
+                )}
+              </>
+            )}
+          </div>
+
+          <div className="flex justify-end space-x-3 mt-6">
+            <Button
+              variant="outline"
+              onClick={() => {
+                setShowFinishModal(false);
+                setSelectedRdv(null);
+                setConsultationData({
+                  observations: '',
+                  ordonnance: '',
+                  analyses: '',
+                  typeAnalyse: '',
+                  nomAnalyse: '',
+                  resultatsAnalyse: ''
+                });
+              }}
+            >
+              Annuler
+            </Button>
+            <Button
+              onClick={handleFinishConsultation}
+              disabled={!consultationData.observations}
+              className="bg-green-600 hover:bg-green-700"
+            >
+              <CheckCircle className="w-4 h-4 mr-1" />
+              Terminer la consultation
+            </Button>
+          </div>
+        </Modal>
       </motion.div>
     </DashboardLayout>
   );

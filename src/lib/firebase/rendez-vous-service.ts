@@ -30,7 +30,7 @@ export const rendezVousService = {
   async createDemandeRendezVous(data: {
     patient_id: string;
     etablissement_id: string;
-    date_rendez_vous: Date;
+    date_rdv: Date;
     heure_debut: string;
     heure_fin: string;
     motif: string;
@@ -43,7 +43,7 @@ export const rendezVousService = {
     try {
       const rdvData = {
         ...data,
-        date_rendez_vous: Timestamp.fromDate(data.date_rendez_vous),
+        date_rdv: Timestamp.fromDate(data.date_rdv),
         statut: data.cree_par === 'secretaire' && data.medecin_id ? 'confirmee' : 'en_attente',
         date_creation: serverTimestamp(),
         date_modification: serverTimestamp(),
@@ -105,7 +105,7 @@ export const rendezVousService = {
       // Récupérer tous les RDV
       const rdvQuery = query(
         collection(db, COLLECTION_NAME),
-        orderBy('date_rendez_vous', 'desc')
+        orderBy('date_rdv', 'desc')
       );
       
       const rdvSnapshot = await getDocs(rdvQuery);
@@ -143,7 +143,7 @@ export const rendezVousService = {
         collection(db, COLLECTION_NAME),
         where('medecin_id', '==', medecinId),
         where('statut', 'in', ['confirmee', 'terminee', 'confirme', 'termine']),
-        orderBy('date_rendez_vous', 'desc')
+        orderBy('date_rdv', 'desc')
       );
       
       const querySnapshot = await getDocs(q);
@@ -216,7 +216,7 @@ export const rendezVousService = {
       const currentData = rdvDoc.data();
       
       await updateDoc(rdvRef, {
-        date_rendez_vous: Timestamp.fromDate(nouvelleDate),
+        date_rdv: Timestamp.fromDate(nouvelleDate),
         heure_debut: nouvelleHeureDebut,
         heure_fin: nouvelleHeureFin,
         statut: 'reportee',
@@ -226,7 +226,7 @@ export const rendezVousService = {
           {
             date: new Date(),
             action: 'report',
-            ancienne_date: currentData.date_rendez_vous,
+            ancienne_date: currentData.date_rdv,
             nouvelle_date: Timestamp.fromDate(nouvelleDate),
             modifie_par: secretaireId,
             motif_modification: motifReport
@@ -399,7 +399,7 @@ export const rendezVousService = {
         en_attente: rdvs.filter(rdv => rdv.statut === 'en_attente').length,
         confirmees: rdvs.filter(rdv => rdv.statut === 'confirmee').length,
         aujourdhui: rdvs.filter(rdv => {
-          const rdvDate = rdv.date_rendez_vous.toDate();
+          const rdvDate = rdv.date_rdv.toDate();
           return rdvDate >= today && rdvDate < tomorrow;
         }).length,
         reportees: rdvs.filter(rdv => rdv.statut === 'reportee').length,
@@ -518,6 +518,49 @@ export const rendezVousService = {
       return updateCount;
     } catch (error) {
       console.error('Erreur lors du nettoyage et migration des RDV:', error);
+      throw error;
+    }
+  },
+
+  // Mettre à jour le statut d'un rendez-vous
+  async updateStatut(
+    rdvId: string,
+    nouveauStatut: 'en_attente' | 'confirmee' | 'terminee' | 'annulee' | 'reportee',
+    userId?: string,
+    motif?: string
+  ): Promise<void> {
+    try {
+      const rdvRef = doc(db, COLLECTION_NAME, rdvId);
+      const rdvDoc = await getDoc(rdvRef);
+      
+      if (!rdvDoc.exists()) {
+        throw new Error('Rendez-vous non trouvé');
+      }
+
+      const currentData = rdvDoc.data();
+      const updateData: any = {
+        statut: nouveauStatut,
+        date_modification: serverTimestamp(),
+      };
+
+      // Ajouter à l'historique des modifications
+      const modification = {
+        date: new Date(),
+        action: 'changement_statut',
+        ancien_statut: currentData.statut,
+        nouveau_statut: nouveauStatut,
+        modifie_par: userId || 'system',
+        motif_modification: motif || `Changement de statut vers ${nouveauStatut}`
+      };
+
+      updateData.historique_modifications = [
+        ...(currentData.historique_modifications || []),
+        modification
+      ];
+
+      await updateDoc(rdvRef, updateData);
+    } catch (error) {
+      console.error('Erreur lors de la mise à jour du statut:', error);
       throw error;
     }
   },
