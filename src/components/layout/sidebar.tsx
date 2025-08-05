@@ -8,6 +8,7 @@ import {
   LayoutDashboard,
   Building2,
   Calendar,
+  CalendarDays,
   Users,
   FileText,
   Phone,
@@ -15,7 +16,6 @@ import {
   UserCheck,
   Stethoscope,
   ClipboardList,
-  TestTube,
 } from 'lucide-react';
 import { useAuthStore } from '@/store';
 import { cn } from '@/lib/utils';
@@ -55,11 +55,6 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen = true, onClose, className }) 
           icon: Phone,
         },
         {
-          name: 'Test Synchronisation',
-          href: '/superadmin/sync-test',
-          icon: TestTube,
-        },
-        {
           name: 'Paramètres',
           href: '/superadmin/settings',
           icon: Settings,
@@ -78,6 +73,11 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen = true, onClose, className }) 
           name: 'Rendez-vous',
           href: '/secretaire/rendez-vous',
           icon: Calendar,
+        },
+        {
+          name: 'Planning',
+          href: '/secretaire/planning',
+          icon: CalendarDays,
         },
         {
           name: 'Patients',
@@ -113,6 +113,11 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen = true, onClose, className }) 
           name: 'Mes consultations',
           href: '/medecin/consultations',
           icon: Calendar,
+        },
+        {
+          name: 'Mon planning',
+          href: '/medecin/planning',
+          icon: CalendarDays,
         },
         {
           name: 'Historique médical',

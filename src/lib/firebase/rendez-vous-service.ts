@@ -147,13 +147,12 @@ export const rendezVousService = {
     }
   },
 
-  // Récupérer les rendez-vous d'un médecin (seulement confirmés)
+  // Récupérer les rendez-vous d'un médecin (tous les statuts pour le planning)
   async getRendezVousByMedecin(medecinId: string): Promise<RendezVous[]> {
     try {
       const q = query(
         collection(db, COLLECTION_NAME),
         where('medecin_id', '==', medecinId),
-        where('statut', 'in', ['confirmee', 'terminee', 'confirme', 'termine']),
         orderBy('date_rdv', 'desc')
       );
       

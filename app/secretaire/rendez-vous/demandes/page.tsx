@@ -120,11 +120,11 @@ const ConfirmationModal: React.FC<ConfirmationModalProps> = ({ rdv, isOpen, onCl
             <select
               value={selectedMedecin}
               onChange={(e) => setSelectedMedecin(e.target.value)}
-              className="w-full flex h-10 rounded-md border border-border bg-input px-3 py-2 text-sm"
+              className="w-full flex h-10 rounded-md border border-border bg-background text-foreground px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
             >
-              <option value="">Sélectionner un médecin</option>
+              <option value="" className="text-foreground bg-background">Sélectionner un médecin</option>
               {medecins.map(medecin => (
-                <option key={medecin.id} value={medecin.id}>
+                <option key={medecin.id} value={medecin.id} className="text-foreground bg-background">
                   Dr. {medecin.prenom} {medecin.nom} - {medecin.specialite}
                 </option>
               ))}
@@ -294,11 +294,11 @@ const ReassignModal: React.FC<ReassignModalProps> = ({ rdv, isOpen, onClose, med
             <select
               value={nouveauMedecin}
               onChange={(e) => setNouveauMedecin(e.target.value)}
-              className="w-full flex h-10 rounded-md border border-border bg-input px-3 py-2 text-sm"
+              className="w-full flex h-10 rounded-md border border-border bg-background text-foreground px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
             >
-              <option value="">Sélectionner un médecin</option>
+              <option value="" className="text-foreground bg-background">Sélectionner un médecin</option>
               {medecins.filter(m => m.id !== rdv?.medecin_id).map(medecin => (
-                <option key={medecin.id} value={medecin.id}>
+                <option key={medecin.id} value={medecin.id} className="text-foreground bg-background">
                   Dr. {medecin.prenom} {medecin.nom} - {medecin.specialite}
                 </option>
               ))}
@@ -717,24 +717,24 @@ const DemandesRendezVousPage: React.FC = () => {
               <select
                 value={selectedStatut}
                 onChange={(e) => setSelectedStatut(e.target.value)}
-                className="flex h-10 rounded-md border border-border bg-input px-3 py-2 text-sm"
+                className="flex h-10 rounded-md border border-border bg-background text-foreground px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
               >
-                <option value="">Tous les statuts</option>
-                <option value="en_attente">En attente</option>
-                <option value="confirmee">Confirmé</option>
-                <option value="reportee">Reporté</option>
-                <option value="annulee">Annulé</option>
-                <option value="terminee">Terminé</option>
+                <option value="" className="text-foreground bg-background">Tous les statuts</option>
+                <option value="en_attente" className="text-foreground bg-background">En attente</option>
+                <option value="confirmee" className="text-foreground bg-background">Confirmé</option>
+                <option value="reportee" className="text-foreground bg-background">Reporté</option>
+                <option value="annulee" className="text-foreground bg-background">Annulé</option>
+                <option value="terminee" className="text-foreground bg-background">Terminé</option>
               </select>
               <select
                 value={selectedMedecin}
                 onChange={(e) => setSelectedMedecin(e.target.value)}
-                className="flex h-10 rounded-md border border-border bg-input px-3 py-2 text-sm"
+                className="flex h-10 rounded-md border border-border bg-background text-foreground px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
               >
-                <option value="">Tous les médecins</option>
-                <option value="none">Non attribué</option>
+                <option value="" className="text-foreground bg-background">Tous les médecins</option>
+                <option value="none" className="text-foreground bg-background">Non attribué</option>
                 {medecins.map(medecin => (
-                  <option key={medecin.id} value={medecin.id}>
+                  <option key={medecin.id} value={medecin.id} className="text-foreground bg-background">
                     Dr. {medecin.prenom} {medecin.nom}
                   </option>
                 ))}

@@ -481,23 +481,23 @@ const RendezVousPage: React.FC = () => {
               <select
                 value={selectedStatut}
                 onChange={(e) => setSelectedStatut(e.target.value)}
-                className="flex h-10 rounded-md border border-border bg-input px-3 py-2 text-sm"
+                className="flex h-10 rounded-md border border-border bg-background text-foreground px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
               >
-                <option value="">Tous les statuts</option>
-                <option value="en_attente">En attente</option>
-                <option value="confirmee">Confirmé</option>
-                <option value="reportee">Reporté</option>
-                <option value="terminee">Terminé</option>
-                <option value="annulee">Annulé</option>
+                <option value="" className="text-foreground bg-background">Tous les statuts</option>
+                <option value="en_attente" className="text-foreground bg-background">En attente</option>
+                <option value="confirmee" className="text-foreground bg-background">Confirmé</option>
+                <option value="reportee" className="text-foreground bg-background">Reporté</option>
+                <option value="terminee" className="text-foreground bg-background">Terminé</option>
+                <option value="annulee" className="text-foreground bg-background">Annulé</option>
               </select>
               <select
                 value={selectedMedecin}
                 onChange={(e) => setSelectedMedecin(e.target.value)}
-                className="flex h-10 rounded-md border border-border bg-input px-3 py-2 text-sm"
+                className="flex h-10 rounded-md border border-border bg-background text-foreground px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
               >
-                <option value="">Tous les médecins</option>
+                <option value="" className="text-foreground bg-background">Tous les médecins</option>
                 {medecins.map(medecin => (
-                  <option key={medecin.id} value={medecin.id}>
+                  <option key={medecin.id} value={medecin.id} className="text-foreground bg-background">
                     Dr. {medecin.prenom} {medecin.nom}
                   </option>
                 ))}
@@ -950,11 +950,11 @@ const RendezVousPage: React.FC = () => {
                   <select
                     value={selectedMedecin}
                     onChange={(e) => setSelectedMedecin(e.target.value)}
-                    className="w-full p-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    className="w-full p-2 border border-border rounded-md bg-background text-foreground focus:ring-2 focus:ring-ring focus:border-transparent"
                   >
-                    <option value="">-- Choisir un médecin --</option>
+                    <option value="" className="text-foreground bg-background">-- Choisir un médecin --</option>
                     {medecins.map((medecin) => (
-                      <option key={medecin.id} value={medecin.id}>
+                      <option key={medecin.id} value={medecin.id} className="text-foreground bg-background">
                         Dr. {medecin.prenom} {medecin.nom} - {medecin.specialite}
                       </option>
                     ))}

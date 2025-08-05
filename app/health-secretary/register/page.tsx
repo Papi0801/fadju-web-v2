@@ -291,14 +291,12 @@ const HealthSecretaryRegisterPage: React.FC = () => {
                           <User className="w-8 h-8 text-white" />
                         </div>
                       </div>
-                      <CardTitle>
-                        <h1 className="text-2xl font-bold text-foreground">
-                          Informations du responsable
-                        </h1>
-                        <p className="text-muted-foreground mt-2">
-                          Créez votre compte responsable d'établissement
-                        </p>
+                      <CardTitle className="text-2xl font-bold text-foreground">
+                        Informations du responsable
                       </CardTitle>
+                      <p className="text-muted-foreground mt-2">
+                        Créez votre compte responsable d'établissement
+                      </p>
                     </CardHeader>
 
                     <CardContent className="px-8 pb-8">
@@ -402,14 +400,12 @@ const HealthSecretaryRegisterPage: React.FC = () => {
                           <Building2 className="w-8 h-8 text-white" />
                         </div>
                       </div>
-                      <CardTitle>
-                        <h1 className="text-2xl font-bold text-foreground">
-                          Informations de l'établissement
-                        </h1>
-                        <p className="text-muted-foreground mt-2">
-                          Enregistrez votre structure de santé
-                        </p>
+                      <CardTitle className="text-2xl font-bold text-foreground">
+                        Informations de l'établissement
                       </CardTitle>
+                      <p className="text-muted-foreground mt-2">
+                        Enregistrez votre structure de santé
+                      </p>
                     </CardHeader>
 
                     <CardContent className="px-8 pb-8">

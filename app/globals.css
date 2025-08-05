@@ -1,5 +1,118 @@
 @import "tailwindcss";
 
+/* Custom styles for react-big-calendar */
+.rbc-calendar {
+  color: hsl(var(--foreground));
+  background-color: hsl(var(--background));
+}
+
+.rbc-header {
+  background-color: hsl(var(--muted));
+  color: hsl(var(--muted-foreground));
+  font-weight: 600;
+  border-bottom: 1px solid hsl(var(--border));
+  padding: 10px 5px;
+}
+
+.rbc-today {
+  background-color: hsl(var(--secondary) / 0.3);
+}
+
+.rbc-event {
+  font-size: 0.875rem;
+  font-weight: 500;
+  border: none;
+  cursor: pointer;
+}
+
+.rbc-event:hover {
+  opacity: 0.8;
+}
+
+.rbc-time-view .rbc-header {
+  border-bottom: 1px solid hsl(var(--border));
+}
+
+.rbc-time-view .rbc-time-gutter {
+  color: hsl(var(--muted-foreground));
+  font-size: 0.875rem;
+}
+
+.rbc-time-slot {
+  border-top: 1px solid hsl(var(--border) / 0.3);
+}
+
+.rbc-timeslot-group {
+  min-height: 40px;
+}
+
+.rbc-day-slot .rbc-time-slot {
+  border-top: 1px solid hsl(var(--border) / 0.2);
+}
+
+.rbc-toolbar {
+  padding: 20px 0;
+}
+
+.rbc-toolbar button {
+  color: hsl(var(--foreground));
+  background-color: hsl(var(--background));
+  border: 1px solid hsl(var(--border));
+  padding: 8px 16px;
+  border-radius: 6px;
+  font-size: 0.875rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.rbc-toolbar button:hover {
+  background-color: hsl(var(--muted));
+}
+
+.rbc-toolbar button.rbc-active {
+  background-color: hsl(var(--primary));
+  color: hsl(var(--primary-foreground));
+  border-color: hsl(var(--primary));
+}
+
+.rbc-month-view {
+  border: 1px solid hsl(var(--border));
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.rbc-month-view .rbc-header {
+  background-color: hsl(var(--muted));
+  color: hsl(var(--muted-foreground));
+}
+
+.rbc-date-cell {
+  padding: 8px;
+  font-weight: 500;
+}
+
+.rbc-off-range-bg {
+  background-color: hsl(var(--muted) / 0.3);
+}
+
+.dark .rbc-calendar {
+  color: hsl(var(--foreground));
+}
+
+.dark .rbc-header {
+  background-color: hsl(var(--muted));
+  color: hsl(var(--muted-foreground));
+}
+
+.dark .rbc-today {
+  background-color: hsl(var(--secondary) / 0.2);
+}
+
+.dark .rbc-off-range-bg {
+  background-color: hsl(var(--muted) / 0.1);
+}
+
 :root {
   /* Light theme colors - Thème vert Fadju */
   --background: #f0fdf4;

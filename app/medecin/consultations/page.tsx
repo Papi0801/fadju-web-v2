@@ -581,6 +581,26 @@ const ConsultationsPage: React.FC = () => {
                                 )}
                               </div>
                               
+                              {/* Bouton test direct pour dossier médical */}
+                              <Button
+                                variant="outline"
+                                size="sm"
+                                onClick={() => {
+                                  console.log('=== BOUTON DIRECT DOSSIER ===');
+                                  const patient = patients.get(rdv.patient_id);
+                                  console.log('Patient:', patient);
+                                  if (patient && patient.patient_id) {
+                                    router.push(`/medecin/patients/${patient.patient_id}`);
+                                  } else {
+                                    toast.error('Dossier patient introuvable');
+                                  }
+                                }}
+                                className="mr-2 bg-blue-100 hover:bg-blue-200"
+                              >
+                                <FileText className="w-4 h-4 mr-1" />
+                                Dossier
+                              </Button>
+
                               <DropdownMenu>
                                 <DropdownMenuTrigger asChild>
                                   <Button variant="ghost" size="sm">
@@ -601,17 +621,36 @@ const ConsultationsPage: React.FC = () => {
                                     Modifier
                                   </DropdownMenuItem>
                                   <DropdownMenuItem
-                                    onClick={() => {
+                                    onClick={(e) => {
+                                      e.preventDefault();
+                                      e.stopPropagation();
+                                      console.log('=== DEBUT DEBUG DOSSIER MEDICAL ===');
+                                      console.log('RDV complet:', rdv);
+                                      console.log('Patient ID:', rdv.patient_id);
+                                      console.log('Map patients complète:', patients);
                                       const patient = patients.get(rdv.patient_id);
-                                      if (patient && patient.id) {
-                                        router.push(`/medecin/patients/${patient.id}`);
+                                      console.log('Patient récupéré:', patient);
+                                      
+                                      if (patient) {
+                                        console.log('Patient trouvé - patient_id:', patient.patient_id);
+                                        if (patient.patient_id) {
+                                          const url = `/medecin/patients/${patient.patient_id}`;
+                                          console.log('Navigation vers:', url);
+                                          router.push(url);
+                                        } else {
+                                          console.log('ERREUR: patient.patient_id est vide/undefined');
+                                          toast.error('ID patient manquant');
+                                        }
                                       } else {
+                                        console.log('ERREUR: Patient non trouvé dans la map');
+                                        console.log('Keys disponibles dans patients map:', Array.from(patients.keys()));
                                         toast.error('Dossier patient introuvable');
                                       }
+                                      console.log('=== FIN DEBUG DOSSIER MEDICAL ===');
                                     }}
                                   >
                                     <FileText className="w-4 h-4 mr-2" />
-                                    Dossier patient
+                                    Voir le dossier médical
                                   </DropdownMenuItem>
                                 </DropdownMenuContent>
                               </DropdownMenu>
@@ -649,9 +688,29 @@ const ConsultationsPage: React.FC = () => {
             {selectedRdv && (
               <>
                 <div className="bg-muted/30 rounded-lg p-4">
-                  <h3 className="font-semibold mb-2">Patient</h3>
-                  <p className="text-sm">{getPatientName(selectedRdv.patient_id)}</p>
-                  <p className="text-sm text-muted-foreground mt-1">Motif: {selectedRdv.motif}</p>
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <h3 className="font-semibold mb-2">Patient</h3>
+                      <p className="text-sm">{getPatientName(selectedRdv.patient_id)}</p>
+                      <p className="text-sm text-muted-foreground mt-1">Motif: {selectedRdv.motif}</p>
+                    </div>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => {
+                        const patient = patients.get(selectedRdv.patient_id);
+                        if (patient && patient.patient_id) {
+                          router.push(`/medecin/patients/${patient.patient_id}`);
+                        } else {
+                          toast.error('Dossier patient introuvable');
+                        }
+                      }}
+                      className="flex items-center space-x-2"
+                    >
+                      <FileText className="w-4 h-4" />
+                      <span>Voir le dossier</span>
+                    </Button>
+                  </div>
                 </div>
 
                 <div>

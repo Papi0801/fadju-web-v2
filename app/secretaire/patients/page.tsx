@@ -112,40 +112,6 @@ const PatientsPage: React.FC = () => {
     }
   };
 
-  // Fonction pour créer un patient de test (développement uniquement)
-  const createTestPatient = async () => {
-    try {
-      const testPatient = {
-        patient_id: `test_${Date.now()}`,
-        prenom: 'Patient',
-        nom: 'Test',
-        email: `test.patient.${Date.now()}@email.sn`,
-        telephone: `+221 77 ${String(Math.floor(Math.random() * 1000000)).padStart(6, '0')}`,
-        adresse: 'Dakar, Test Address',
-        date_naissance: new Date('1990-01-01'),
-        genre: 'Homme',
-        groupe_sanguin: 'O+',
-        poids: 70,
-        taille: 175,
-        actif: true,
-      };
-
-      // Créer le patient
-      const patientDocId = await dossierPatientService.create(testPatient);
-      
-      // L'affilier immédiatement à cet établissement
-      await dossierPatientService.affiliatePatientToEtablissement(
-        testPatient.patient_id,
-        user?.etablissement_id || ''
-      );
-
-      toast.success(`Patient de test créé avec l'ID: ${testPatient.patient_id}`);
-      fetchPatients();
-    } catch (error) {
-      console.error('Erreur lors de la création du patient de test:', error);
-      toast.error('Erreur lors de la création du patient de test');
-    }
-  };
 
   const handleViewPatient = (patient: DossierPatient) => {
     setSelectedPatient(patient);
@@ -208,14 +174,6 @@ const PatientsPage: React.FC = () => {
             >
               <UserPlus className="w-5 h-5" />
               <span>Ajouter un patient</span>
-            </Button>
-            <Button
-              variant="outline"
-              onClick={createTestPatient}
-              className="flex items-center space-x-2"
-            >
-              <Plus className="w-4 h-4" />
-              <span>Créer test</span>
             </Button>
           </div>
         </div>

@@ -19,6 +19,8 @@ import {
   TrendingUp,
   BarChart3,
   Download,
+  User,
+  Clock,
 } from 'lucide-react';
 import toast from 'react-hot-toast';
 
@@ -39,6 +41,7 @@ import { EtablissementSante } from '@/types';
 import { formatDate, phoneNumberFormat } from '@/lib/utils';
 import { REGIONS_SENEGAL, ETABLISSEMENT_TYPES } from '@/lib/constants';
 import { EtablissementQueries } from '@/lib/firebase/firestore';
+import { etablissementStatsService, EtablissementStats } from '@/lib/firebase/etablissement-stats';
 
 const SuperAdminEtablissementsPage: React.FC = () => {
   const {
@@ -54,6 +57,9 @@ const SuperAdminEtablissementsPage: React.FC = () => {
   const [sortBy, setSortBy] = useState<'nom' | 'date' | 'note'>('nom');
   const [selectedEtablissement, setSelectedEtablissement] = useState<EtablissementSante | null>(null);
   const [isDetailModalOpen, setIsDetailModalOpen] = useState(false);
+  const [isStatsModalOpen, setIsStatsModalOpen] = useState(false);
+  const [selectedStats, setSelectedStats] = useState<EtablissementStats | null>(null);
+  const [loadingStats, setLoadingStats] = useState<string | null>(null);
   const [deleteLoading, setDeleteLoading] = useState<string | null>(null);
   const [debugInfo, setDebugInfo] = useState<any>(null);
 
@@ -147,6 +153,23 @@ const SuperAdminEtablissementsPage: React.FC = () => {
   const openDetailModal = (etablissement: EtablissementSante) => {
     setSelectedEtablissement(etablissement);
     setIsDetailModalOpen(true);
+  };
+
+  const openStatsModal = async (etablissement: EtablissementSante) => {
+    setLoadingStats(etablissement.id);
+    try {
+      const stats = await etablissementStatsService.getEtablissementStats(
+        etablissement.id, 
+        etablissement.nom
+      );
+      setSelectedStats(stats);
+      setIsStatsModalOpen(true);
+    } catch (error) {
+      console.error('Erreur lors du chargement des statistiques:', error);
+      toast.error('Erreur lors du chargement des statistiques');
+    } finally {
+      setLoadingStats(null);
+    }
   };
 
   const exportData = () => {
@@ -565,6 +588,9 @@ const SuperAdminEtablissementsPage: React.FC = () => {
                               <Button
                                 variant="outline"
                                 size="sm"
+                                onClick={() => openStatsModal(etablissement)}
+                                loading={loadingStats === etablissement.id}
+                                disabled={loadingStats !== null}
                                 className="flex items-center space-x-1"
                               >
                                 <BarChart3 className="w-4 h-4" />
@@ -735,6 +761,202 @@ const SuperAdminEtablissementsPage: React.FC = () => {
                   </div>
                 </div>
               </div>
+            </div>
+          )}
+        </Modal>
+
+        {/* Modal de statistiques détaillées */}
+        <Modal
+          isOpen={isStatsModalOpen}
+          onClose={() => setIsStatsModalOpen(false)}
+          title={`Statistiques - ${selectedStats?.etablissementNom || ''}`}
+          size="xl"
+        >
+          {selectedStats && (
+            <div className="space-y-6">
+              {/* Vue d'ensemble */}
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                <div className="text-center p-4 bg-blue-50 dark:bg-blue-900/20 rounded-lg">
+                  <p className="text-2xl font-bold text-blue-600">{selectedStats.totalRendezVous}</p>
+                  <p className="text-sm text-muted-foreground">Rendez-vous total</p>
+                </div>
+                <div className="text-center p-4 bg-green-50 dark:bg-green-900/20 rounded-lg">
+                  <p className="text-2xl font-bold text-green-600">{selectedStats.totalPatients}</p>
+                  <p className="text-sm text-muted-foreground">Patients total</p>
+                </div>
+                <div className="text-center p-4 bg-purple-50 dark:bg-purple-900/20 rounded-lg">
+                  <p className="text-2xl font-bold text-purple-600">{selectedStats.totalMedecins}</p>
+                  <p className="text-sm text-muted-foreground">Médecins</p>
+                </div>
+                <div className="text-center p-4 bg-orange-50 dark:bg-orange-900/20 rounded-lg">
+                  <p className="text-2xl font-bold text-orange-600">{selectedStats.tauxConfirmation}%</p>
+                  <p className="text-sm text-muted-foreground">Taux confirmation</p>
+                </div>
+              </div>
+
+              {/* Statistiques détaillées */}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                {/* Personnel */}
+                <Card>
+                  <CardHeader>
+                    <CardTitle className="flex items-center space-x-2">
+                      <Users className="w-5 h-5" />
+                      <span>Personnel</span>
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent className="space-y-3">
+                    <div className="flex justify-between">
+                      <span>Médecins total</span>
+                      <Badge variant="primary">{selectedStats.totalMedecins}</Badge>
+                    </div>
+                    <div className="flex justify-between">
+                      <span>Médecins actifs</span>
+                      <Badge variant="success">{selectedStats.medecinActifs}</Badge>
+                    </div>
+                    <div className="flex justify-between">
+                      <span>Secrétaires</span>
+                      <Badge variant="secondary">{selectedStats.totalSecretaires}</Badge>
+                    </div>
+                  </CardContent>
+                </Card>
+
+                {/* Patients */}
+                <Card>
+                  <CardHeader>
+                    <CardTitle className="flex items-center space-x-2">
+                      <User className="w-5 h-5" />
+                      <span>Patients</span>
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent className="space-y-3">
+                    <div className="flex justify-between">
+                      <span>Total patients</span>
+                      <Badge variant="primary">{selectedStats.totalPatients}</Badge>
+                    </div>
+                    <div className="flex justify-between">
+                      <span>Nouveaux (30j)</span>
+                      <Badge variant="success">{selectedStats.nouveauPatients30j}</Badge>
+                    </div>
+                    <div className="flex justify-between">
+                      <span>Patients actifs</span>
+                      <Badge variant="secondary">{selectedStats.patientsActifs}</Badge>
+                    </div>
+                    {selectedStats.croissancePatients !== 0 && (
+                      <div className="flex justify-between">
+                        <span>Croissance (30j)</span>
+                        <Badge variant={selectedStats.croissancePatients > 0 ? 'success' : 'destructive'}>
+                          {selectedStats.croissancePatients > 0 ? '+' : ''}{selectedStats.croissancePatients}%
+                        </Badge>
+                      </div>
+                    )}
+                  </CardContent>
+                </Card>
+
+                {/* Rendez-vous */}
+                <Card>
+                  <CardHeader>
+                    <CardTitle className="flex items-center space-x-2">
+                      <Calendar className="w-5 h-5" />
+                      <span>Rendez-vous</span>
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent className="space-y-3">
+                    <div className="flex justify-between">
+                      <span>Total</span>
+                      <Badge variant="primary">{selectedStats.totalRendezVous}</Badge>
+                    </div>
+                    <div className="flex justify-between">
+                      <span>Confirmés</span>
+                      <Badge variant="success">{selectedStats.rdvConfirmes}</Badge>
+                    </div>
+                    <div className="flex justify-between">
+                      <span>En attente</span>
+                      <Badge variant="warning">{selectedStats.rdvEnAttente}</Badge>
+                    </div>
+                    <div className="flex justify-between">
+                      <span>Terminés</span>
+                      <Badge variant="outline">{selectedStats.rdvTermines}</Badge>
+                    </div>
+                    <div className="flex justify-between">
+                      <span>Annulés</span>
+                      <Badge variant="destructive">{selectedStats.rdvAnnules}</Badge>
+                    </div>
+                  </CardContent>
+                </Card>
+
+                {/* Performance */}
+                <Card>
+                  <CardHeader>
+                    <CardTitle className="flex items-center space-x-2">
+                      <TrendingUp className="w-5 h-5" />
+                      <span>Performance</span>
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent className="space-y-3">
+                    <div className="flex justify-between">
+                      <span>RDV/jour (moyenne)</span>
+                      <Badge variant="primary">{selectedStats.moyenneRdvParJour}</Badge>
+                    </div>
+                    <div className="flex justify-between">
+                      <span>RDV/médecin</span>
+                      <Badge variant="secondary">{selectedStats.moyenneRdvParMedecin}</Badge>
+                    </div>
+                    <div className="flex justify-between">
+                      <span>Taux confirmation</span>
+                      <Badge variant={selectedStats.tauxConfirmation > 80 ? 'success' : selectedStats.tauxConfirmation > 60 ? 'warning' : 'destructive'}>
+                        {selectedStats.tauxConfirmation}%
+                      </Badge>
+                    </div>
+                    {selectedStats.croissanceRdv !== 0 && (
+                      <div className="flex justify-between">
+                        <span>Croissance RDV (30j)</span>
+                        <Badge variant={selectedStats.croissanceRdv > 0 ? 'success' : 'destructive'}>
+                          {selectedStats.croissanceRdv > 0 ? '+' : ''}{selectedStats.croissanceRdv}%
+                        </Badge>
+                      </div>
+                    )}
+                  </CardContent>
+                </Card>
+              </div>
+
+              {/* Activité récente */}
+              <Card>
+                <CardHeader>
+                  <CardTitle className="flex items-center space-x-2">
+                    <Clock className="w-5 h-5" />
+                    <span>Activité récente</span>
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <div className="text-center p-3 bg-muted rounded-lg">
+                      <p className="text-lg font-semibold text-primary">{selectedStats.rdv7j}</p>
+                      <p className="text-sm text-muted-foreground">RDV (7 derniers jours)</p>
+                    </div>
+                    <div className="text-center p-3 bg-muted rounded-lg">
+                      <p className="text-lg font-semibold text-primary">{selectedStats.rdv30j}</p>
+                      <p className="text-sm text-muted-foreground">RDV (30 derniers jours)</p>
+                    </div>
+                    <div className="text-center p-3 bg-muted rounded-lg">
+                      <p className="text-sm text-muted-foreground">Dernière activité</p>
+                      <p className="text-sm font-medium">
+                        {selectedStats.derniereActivite 
+                          ? formatDate(selectedStats.derniereActivite)
+                          : 'Aucune donnée'
+                        }
+                      </p>
+                    </div>
+                  </div>
+                  
+                  {selectedStats.dernierRdv && (
+                    <div className="mt-4 p-3 bg-blue-50 dark:bg-blue-900/20 rounded-lg">
+                      <p className="text-sm text-blue-800 dark:text-blue-200">
+                        <strong>Dernier rendez-vous :</strong> {formatDate(selectedStats.dernierRdv)}
+                      </p>
+                    </div>
+                  )}
+                </CardContent>
+              </Card>
             </div>
           )}
         </Modal>
