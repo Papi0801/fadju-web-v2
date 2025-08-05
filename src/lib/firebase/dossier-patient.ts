@@ -414,4 +414,149 @@ export const dossierPatientService = {
     if (imc < 40) return 'Obésité sévère';
     return 'Obésité morbide';
   },
+
+  // Récupérer tous les patients affiliés à un établissement
+  async getPatientsByEtablissement(etablissementId: string): Promise<DossierPatient[]> {
+    try {
+      // D'abord essayer la nouvelle requête avec etablissements_affilies
+      try {
+        const q = query(
+          collection(db, COLLECTION_NAME),
+          where('etablissements_affilies', 'array-contains', etablissementId),
+          where('actif', '==', true),
+          orderBy('date_creation', 'desc')
+        );
+        
+        const querySnapshot = await getDocs(q);
+        const patientsAffiliés = querySnapshot.docs.map(doc => ({
+          id: doc.id,
+          ...convertTimestamp(doc.data()),
+        })) as DossierPatient[];
+
+        // Si on trouve des patients avec le nouveau système, les retourner
+        if (patientsAffiliés.length > 0) {
+          return patientsAffiliés;
+        }
+      } catch (indexError) {
+        console.log('Index pour etablissements_affilies pas encore créé, utilisation de la méthode de fallback');
+      }
+
+      // Fallback: récupérer tous les patients et filtrer côté client (temporaire)
+      console.log('Utilisation du fallback pour récupérer tous les patients');
+      const allPatientsQuery = query(
+        collection(db, COLLECTION_NAME),
+        where('actif', '==', true),
+        orderBy('date_creation', 'desc')
+      );
+      
+      const allPatientsSnapshot = await getDocs(allPatientsQuery);
+      const allPatients = allPatientsSnapshot.docs.map(doc => ({
+        id: doc.id,
+        ...convertTimestamp(doc.data()),
+      })) as DossierPatient[];
+
+      // Filtrer les patients qui ont cet établissement dans leurs affiliations
+      const patientsAffiliés = allPatients.filter(patient => {
+        const etablissements = (patient as any).etablissements_affilies;
+        if (etablissements && Array.isArray(etablissements)) {
+          return etablissements.includes(etablissementId);
+        }
+        return false;
+      });
+
+      // Si aucun patient affilié n'est trouvé ET qu'il n'y a pas de champ etablissements_affilies
+      // sur les patients existants, retourner tous les patients (migration en cours)
+      if (patientsAffiliés.length === 0 && allPatients.length > 0) {
+        const hasAnyAffiliations = allPatients.some(patient => 
+          (patient as any).etablissements_affilies && 
+          Array.isArray((patient as any).etablissements_affilies)
+        );
+        
+        if (!hasAnyAffiliations) {
+          console.log('⚠️ Aucune affiliation détectée, retour de tous les patients (migration nécessaire)');
+          return allPatients;
+        }
+      }
+
+      return patientsAffiliés;
+      
+    } catch (error) {
+      console.error('Erreur lors de la récupération des patients par établissement:', error);
+      return []; // Retourner un tableau vide au lieu de throw
+    }
+  },
+
+  // Vérifier si un patient est affilié à un établissement
+  async isPatientAffiliatedToEtablissement(patientId: string, etablissementId: string): Promise<boolean> {
+    try {
+      const patient = await this.getByPatientId(patientId);
+      if (!patient) return false;
+      
+      const etablissements = (patient as any).etablissements_affilies || [];
+      return etablissements.includes(etablissementId);
+    } catch (error) {
+      console.error('Erreur lors de la vérification de l\'affiliation:', error);
+      return false;
+    }
+  },
+
+  // Affilier un patient à un établissement
+  async affiliatePatientToEtablissement(patientId: string, etablissementId: string): Promise<void> {
+    try {
+      const patient = await this.getByPatientId(patientId);
+      if (!patient) {
+        throw new Error('Patient non trouvé');
+      }
+
+      // Vérifier si déjà affilié
+      const isAlreadyAffiliated = await this.isPatientAffiliatedToEtablissement(patientId, etablissementId);
+      if (isAlreadyAffiliated) {
+        throw new Error('Patient déjà affilié à cet établissement');
+      }
+
+      // Ajouter l'établissement à la liste des affiliations
+      const etablissements = (patient as any).etablissements_affilies || [];
+      const newEtablissements = [...etablissements, etablissementId];
+
+      await this.update(patient.id, {
+        etablissements_affilies: newEtablissements,
+      } as any);
+    } catch (error) {
+      console.error('Erreur lors de l\'affiliation du patient:', error);
+      throw error;
+    }
+  },
+
+  // Désaffilier un patient d'un établissement
+  async disaffiliatePatientFromEtablissement(patientId: string, etablissementId: string): Promise<void> {
+    try {
+      const patient = await this.getByPatientId(patientId);
+      if (!patient) {
+        throw new Error('Patient non trouvé');
+      }
+
+      const etablissements = (patient as any).etablissements_affilies || [];
+      const newEtablissements = etablissements.filter((id: string) => id !== etablissementId);
+
+      await this.update(patient.id, {
+        etablissements_affilies: newEtablissements,
+      } as any);
+    } catch (error) {
+      console.error('Erreur lors de la désaffiliation du patient:', error);
+      throw error;
+    }
+  },
+
+  // Récupérer les établissements affiliés d'un patient
+  async getPatientEtablissements(patientId: string): Promise<string[]> {
+    try {
+      const patient = await this.getByPatientId(patientId);
+      if (!patient) return [];
+      
+      return (patient as any).etablissements_affilies || [];
+    } catch (error) {
+      console.error('Erreur lors de la récupération des établissements du patient:', error);
+      return [];
+    }
+  },
 };

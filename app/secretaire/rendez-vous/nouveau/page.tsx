@@ -53,6 +53,7 @@ interface PatientSelectionModalProps {
 }
 
 const PatientSelectionModal: React.FC<PatientSelectionModalProps> = ({ isOpen, onClose, onSelect }) => {
+  const { user } = useAuthStore();
   const [patients, setPatients] = useState<DossierPatient[]>([]);
   const [searchTerm, setSearchTerm] = useState('');
   const [loading, setLoading] = useState(false);
@@ -66,8 +67,9 @@ const PatientSelectionModal: React.FC<PatientSelectionModalProps> = ({ isOpen, o
   const fetchPatients = async () => {
     setLoading(true);
     try {
-      const allPatients = await dossierPatientService.getAll();
-      setPatients(allPatients);
+      // Récupérer seulement les patients affiliés à cet établissement
+      const patientsAffiliés = await dossierPatientService.getPatientsByEtablissement(user?.etablissement_id || '');
+      setPatients(patientsAffiliés);
     } catch (error) {
       console.error('Erreur lors de la récupération des patients:', error);
       toast.error('Erreur lors du chargement des patients');
@@ -113,8 +115,22 @@ const PatientSelectionModal: React.FC<PatientSelectionModalProps> = ({ isOpen, o
           ) : (
             <div className="flex-1 overflow-y-auto space-y-2">
               {filteredPatients.length === 0 ? (
-                <div className="text-center py-8 text-muted-foreground">
-                  {searchTerm ? 'Aucun patient trouvé' : 'Aucun patient enregistré'}
+                <div className="text-center py-8">
+                  <User className="w-12 h-12 mx-auto text-muted-foreground mb-3" />
+                  <p className="text-muted-foreground mb-4">
+                    {searchTerm ? 'Aucun patient trouvé' : 'Aucun patient affilié à votre établissement'}
+                  </p>
+                  <Button
+                    variant="outline"
+                    onClick={() => {
+                      onClose();
+                      window.open('/secretaire/patients', '_blank');
+                    }}
+                    className="flex items-center space-x-2"
+                  >
+                    <UserPlus className="w-4 h-4" />
+                    <span>Ajouter un patient par ID</span>
+                  </Button>
                 </div>
               ) : (
                 filteredPatients.map((patient) => (
@@ -156,7 +172,19 @@ const PatientSelectionModal: React.FC<PatientSelectionModalProps> = ({ isOpen, o
           )}
         </div>
 
-        <DialogFooter>
+        <DialogFooter className="flex justify-between">
+          <Button
+            type="button"
+            variant="ghost"
+            onClick={() => {
+              onClose();
+              window.open('/secretaire/patients', '_blank');
+            }}
+            className="flex items-center space-x-2"
+          >
+            <UserPlus className="w-4 h-4" />
+            <span>Gérer les patients</span>
+          </Button>
           <Button variant="outline" onClick={onClose}>
             Annuler
           </Button>
@@ -255,10 +283,18 @@ const NouveauRendezVousPage: React.FC = () => {
 
     setLoading(true);
     try {
+      // Vérifier que la date est valide avant de créer l'objet Date
+      const dateRdv = new Date(formData.date_rendez_vous);
+      if (isNaN(dateRdv.getTime())) {
+        toast.error('Date de rendez-vous invalide');
+        setLoading(false);
+        return;
+      }
+
       await rendezVousService.createDemandeRendezVous({
         patient_id: selectedPatient.patient_id,
         etablissement_id: user.etablissement_id,
-        date_rendez_vous: new Date(formData.date_rendez_vous),
+        date_rdv: dateRdv,
         heure_debut: formData.heure_debut,
         heure_fin: formData.heure_fin,
         motif: formData.motif,

@@ -80,6 +80,11 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen = true, onClose, className }) 
           icon: Calendar,
         },
         {
+          name: 'Patients',
+          href: '/secretaire/patients',
+          icon: Users,
+        },
+        {
           name: 'Médecins',
           href: '/secretaire/medecins',
           icon: Stethoscope,

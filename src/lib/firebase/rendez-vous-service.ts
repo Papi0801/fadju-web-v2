@@ -25,6 +25,17 @@ import { convertTimestamp } from './utils';
 
 const COLLECTION_NAME = 'rendez_vous';
 
+// Fonction utilitaire pour nettoyer les valeurs undefined
+const cleanUndefinedFields = (obj: Record<string, any>): Record<string, any> => {
+  const cleaned: Record<string, any> = {};
+  for (const [key, value] of Object.entries(obj)) {
+    if (value !== undefined) {
+      cleaned[key] = value;
+    }
+  }
+  return cleaned;
+};
+
 export const rendezVousService = {
   // Créer une demande de rendez-vous (par patient ou secrétaire)
   async createDemandeRendezVous(data: {
@@ -41,7 +52,7 @@ export const rendezVousService = {
     notes_secretaire?: string;
   }): Promise<string> {
     try {
-      const rdvData = {
+      const rdvData = cleanUndefinedFields({
         ...data,
         date_rdv: Timestamp.fromDate(data.date_rdv),
         statut: data.cree_par === 'secretaire' && data.medecin_id ? 'confirmee' : 'en_attente',
@@ -53,7 +64,7 @@ export const rendezVousService = {
           modifie_par: data.cree_par,
           motif_modification: `Demande de rendez-vous créée par ${data.cree_par}`
         }]
-      };
+      });
 
       const docRef = await addDoc(collection(db, COLLECTION_NAME), rdvData);
       return docRef.id;
@@ -174,7 +185,7 @@ export const rendezVousService = {
 
       const currentData = rdvDoc.data();
       
-      await updateDoc(rdvRef, {
+      const updateData = cleanUndefinedFields({
         medecin_id: medecinId,
         statut: 'confirmee',
         notes_secretaire,
@@ -190,6 +201,8 @@ export const rendezVousService = {
           }
         ]
       });
+
+      await updateDoc(rdvRef, updateData);
     } catch (error) {
       console.error('Erreur lors de la confirmation du RDV:', error);
       throw error;
@@ -328,7 +341,7 @@ export const rendezVousService = {
 
       const currentData = rdvDoc.data();
       
-      await updateDoc(rdvRef, {
+      const updateData = cleanUndefinedFields({
         statut: 'terminee',
         notes_medecin: notesMedecin,
         date_modification: serverTimestamp(),
@@ -342,6 +355,8 @@ export const rendezVousService = {
           }
         ]
       });
+
+      await updateDoc(rdvRef, updateData);
     } catch (error) {
       console.error('Erreur lors de la terminaison du RDV:', error);
       throw error;

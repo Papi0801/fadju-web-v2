@@ -117,7 +117,7 @@ Gestion des rendez-vous médicaux - **STRUCTURE MISE À JOUR**
 ```
 
 ### 4. dossier_patient
-Dossiers médicaux des patients - **STRUCTURE MISE À JOUR**
+Dossiers médicaux des patients - **STRUCTURE MISE À JOUR AVEC AFFILIATIONS**
 ```typescript
 {
   id: string; // ID du document
@@ -140,6 +140,9 @@ Dossiers médicaux des patients - **STRUCTURE MISE À JOUR**
   maladie_chronique?: string; // "Diabète de type 2"
   personne_a_contacter: string; // "Fatou Diop - 77 987 65 43"
   
+  // NOUVEAU: Système d'affiliation aux établissements
+  etablissements_affilies: string[]; // ["etab-001", "etab-002"] - Liste des établissements où le patient peut être suivi
+  
   // Informations de suivi médical (mises à jour par les médecins)
   derniere_consultation?: Timestamp;
   derniere_observation?: string; // Dernière observation médicale
@@ -154,6 +157,7 @@ Dossiers médicaux des patients - **STRUCTURE MISE À JOUR**
   
   // Métadonnées
   date_creation: Timestamp;
+  date_modification?: Timestamp; // Date de dernière modification
   notes?: string; // Notes générales
   actif: boolean; // Dossier actif/archivé
 }
@@ -246,6 +250,40 @@ Statut: confirmee → terminee
 - ordonnance: optionnel
 - analyses_demandees: optionnel
 - Mise à jour du dossier_patient automatique
+```
+
+## Workflow d'Affiliation des Patients
+
+### 1. Affichage de l'ID Patient (Application Mobile)
+```
+- Le patient peut voir son ID unique dans la section "Profil"
+- Cet ID correspond au patient_id dans la collection dossier_patient
+- Format: "G90AefcLATRP97SawW4QhKYzHeK2" (UID Firebase Auth)
+```
+
+### 2. Ajout par Secrétaire (Interface Web)
+```
+Processus:
+1. Secrétaire saisit l'ID patient fourni par le patient
+2. Système vérifie l'existence du patient dans dossier_patient
+3. Système vérifie que le patient n'est pas déjà affilié
+4. Ajout de l'etablissement_id dans etablissements_affilies[]
+5. Patient devient visible dans la liste des patients de l'établissement
+```
+
+### 3. Gestion des Rendez-vous
+```
+- Seuls les patients affiliés apparaissent lors de la création de RDV
+- Le secrétaire peut créer des RDV pour ces patients
+- Les médecins voient les patients de leur établissement
+```
+
+### 4. Avantages du Système d'Affiliation
+```
+- Un patient peut être suivi dans plusieurs établissements
+- Contrôle d'accès par établissement
+- Historique médical centralisé mais accès sélectif
+- Pas de duplication de données patient
 ```
 
 ## Rôles et Permissions

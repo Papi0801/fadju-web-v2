@@ -368,7 +368,7 @@ const ConsultationsPage: React.FC = () => {
           <div>
             <h1 className="text-3xl font-bold text-foreground">Mes Consultations</h1>
             <p className="text-muted-foreground mt-2">
-              Gérez vos rendez-vous et consultations
+              Consultez et gérez vos rendez-vous attribués
             </p>
           </div>
           <Button
@@ -377,7 +377,7 @@ const ConsultationsPage: React.FC = () => {
             className="flex items-center space-x-2"
           >
             <Plus className="w-5 h-5" />
-            <span>Nouveau RDV</span>
+            <span>Ajouter une consultation</span>
           </Button>
         </div>
 
@@ -484,8 +484,8 @@ const ConsultationsPage: React.FC = () => {
               <h3 className="text-lg font-semibold mb-2">Aucune consultation</h3>
               <p className="text-muted-foreground mb-4">
                 {rendezVous.length === 0 
-                  ? 'Aucun rendez-vous programmé pour le moment.'
-                  : 'Aucun rendez-vous ne correspond à vos critères de recherche.'
+                  ? 'Aucune consultation enregistrée pour le moment.'
+                  : 'Aucune consultation ne correspond à vos critères de recherche.'
                 }
               </p>
               {rendezVous.length === 0 && (
@@ -493,7 +493,7 @@ const ConsultationsPage: React.FC = () => {
                   variant="primary"
                   onClick={() => router.push('/medecin/consultations/add')}
                 >
-                  Créer le premier rendez-vous
+                  Ajouter une consultation
                 </Button>
               )}
             </CardContent>
