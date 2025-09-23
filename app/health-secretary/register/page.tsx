@@ -59,7 +59,21 @@ const step2Schema = yup.object({
 });
 
 type Step1Form = yup.InferType<typeof step1Schema>;
-type Step2Form = yup.InferType<typeof step2Schema>;
+
+// Type explicite pour éviter les erreurs d'inférence
+type Step2Form = {
+  nom_etablissement: string;
+  type: 'hopital' | 'clinique' | 'cabinet';
+  adresse: string;
+  ville: string;
+  region: string;
+  telephone_etablissement: string;
+  email_etablissement: string;
+  description: string;
+  site_web?: string | null;
+  service_urgence?: boolean;
+  ouvert_24h?: boolean;
+};
 
 const HealthSecretaryRegisterPage: React.FC = () => {
   const router = useRouter();
@@ -87,7 +101,7 @@ const HealthSecretaryRegisterPage: React.FC = () => {
     formState: { errors: errorsStep2 },
     watch,
   } = useForm<Step2Form>({
-    resolver: yupResolver(step2Schema),
+    resolver: yupResolver(step2Schema) as any,
     defaultValues: {
       service_urgence: false,
       ouvert_24h: false,
