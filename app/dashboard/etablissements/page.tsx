@@ -133,7 +133,7 @@ const EtablissementsPage: React.FC = () => {
                   leftIcon={<Search className="w-4 h-4" />}
                 />
               </div>
-              
+
               <div>
                 <select
                   value={selectedRegion}
@@ -449,4 +449,4 @@ const EtablissementsPage: React.FC = () => {
   );
 };
 
-export default EtablissementsPage;
+//export default EtablissementsPage;
