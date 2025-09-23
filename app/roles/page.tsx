@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useEffect } from 'react';
+import React from 'react';
 import { motion } from 'framer-motion';
 import { useRouter } from 'next/navigation';
 import { 
@@ -14,12 +14,8 @@ import {
 import { Button, Card, CardContent, ConditionalThemeToggle } from '@/components/ui';
 import Image from 'next/image';
 
-export default function Home() {
+export default function RolesPage() {
   const router = useRouter();
-
-  useEffect(() => {
-    router.push('/health-secretary');
-  }, [router]);
 
   const userTypes = [
     {
