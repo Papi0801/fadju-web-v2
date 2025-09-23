@@ -129,8 +129,8 @@ const HealthSecretaryRegisterPage: React.FC = () => {
         email: data.email_etablissement,
         description: data.description,
         ...(data.site_web && data.site_web.trim() && { site_web: data.site_web }),
-        service_urgence: data.service_urgence,
-        ouvert_24h: data.ouvert_24h,
+        service_urgence: data.service_urgence ?? false,
+        ouvert_24h: data.ouvert_24h ?? false,
         services: selectedServices,
         specialites: selectedSpecialites,
         horaires_travail: {
