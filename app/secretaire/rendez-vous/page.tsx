@@ -196,7 +196,6 @@ const RendezVousPage: React.FC = () => {
   const getStatutBadgeVariant = (statut: string) => {
     switch (statut) {
       case 'confirmee':
-      case 'confirme':
         return 'success';
       case 'annulee':
       case 'annule':
@@ -204,7 +203,6 @@ const RendezVousPage: React.FC = () => {
       case 'reportee':
         return 'secondary';
       case 'terminee':
-      case 'termine':
         return 'outline';
       case 'en_attente':
       default:
@@ -215,7 +213,6 @@ const RendezVousPage: React.FC = () => {
   const getStatutLabel = (statut: string) => {
     switch (statut) {
       case 'confirmee':
-      case 'confirme':
         return 'Confirmé';
       case 'annulee':
       case 'annule':
@@ -223,7 +220,6 @@ const RendezVousPage: React.FC = () => {
       case 'reportee':
         return 'Reporté';
       case 'terminee':
-      case 'termine':
         return 'Terminé';
       case 'en_attente':
       default:
@@ -327,10 +323,10 @@ const RendezVousPage: React.FC = () => {
   const stats = {
     total: rendezVous.length,
     enAttente: rendezVous.filter(rdv => rdv.statut === 'en_attente').length,
-    confirmes: rendezVous.filter(rdv => rdv.statut === 'confirmee' || rdv.statut === 'confirme').length,
+    confirmes: rendezVous.filter(rdv => rdv.statut === 'confirmee').length,
     annules: rendezVous.filter(rdv => rdv.statut === 'annulee' || rdv.statut === 'annule').length,
     reportes: rendezVous.filter(rdv => rdv.statut === 'reportee').length,
-    termines: rendezVous.filter(rdv => rdv.statut === 'terminee' || rdv.statut === 'termine').length,
+    termines: rendezVous.filter(rdv => rdv.statut === 'terminee').length,
   };
 
   if (loading) {

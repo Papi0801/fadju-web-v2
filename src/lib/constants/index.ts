@@ -17,9 +17,10 @@ export const USER_ROLES = {
 // Statuts des rendez-vous
 export const RENDEZ_VOUS_STATUS = {
   EN_ATTENTE: 'en_attente',
-  CONFIRME: 'confirmee',
-  ANNULE: 'annule',
-  TERMINE: 'termine',
+  CONFIRMEE: 'confirmee',
+  ANNULEE: 'annulee',
+  REPORTEE: 'reportee',
+  TERMINEE: 'terminee',
 } as const;
 
 // Types d'établissements

@@ -86,10 +86,10 @@ class EtablissementStatsService {
 
       // Stats rendez-vous
       const totalRendezVous = rendezVous.length;
-      const rdvConfirmes = rendezVous.filter(rv => rv.statut === 'confirmee' || rv.statut === 'confirme').length;
+      const rdvConfirmes = rendezVous.filter(rv => rv.statut === 'confirmee').length;
       const rdvEnAttente = rendezVous.filter(rv => rv.statut === 'en_attente').length;
       const rdvAnnules = rendezVous.filter(rv => rv.statut === 'annulee' || rv.statut === 'annule').length;
-      const rdvTermines = rendezVous.filter(rv => rv.statut === 'terminee' || rv.statut === 'termine').length;
+      const rdvTermines = rendezVous.filter(rv => rv.statut === 'terminee').length;
       
       const rdv30j = rendezVous.filter(rv => 
         rv.date_rendez_vous && rv.date_rendez_vous.toDate() > jour30Ago
