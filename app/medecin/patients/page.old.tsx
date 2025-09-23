@@ -408,7 +408,7 @@ const PatientsPage: React.FC = () => {
                     <div className="mt-4 pt-4 border-t border-border">
                       <div className="flex items-center justify-between text-sm">
                         <span className="text-muted-foreground">Consultations</span>
-                        <Badge variant="outline">
+                        <Badge variant="default">
                           {patient.nombreConsultations}
                         </Badge>
                       </div>

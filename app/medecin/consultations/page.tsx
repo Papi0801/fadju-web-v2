@@ -271,7 +271,7 @@ const ConsultationsPage: React.FC = () => {
       case 'reportee':
         return 'secondary';
       default:
-        return 'outline';
+        return 'default';
     }
   };
 

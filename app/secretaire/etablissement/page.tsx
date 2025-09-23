@@ -556,7 +556,7 @@ const EtablissementPage: React.FC = () => {
                 </span>
               </div>
               {etablissement.statut_validation === 'valide' && (
-                <Badge variant="outline" className="text-xs">
+                <Badge variant="default" className="text-xs">
                   Visible sur l'application mobile
                 </Badge>
               )}

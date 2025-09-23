@@ -176,7 +176,7 @@ const SecretairePlanningPage: React.FC = () => {
       case 'annulee':
         return <Badge variant="destructive">Annulé</Badge>;
       case 'terminee':
-        return <Badge variant="outline">Terminé</Badge>;
+        return <Badge variant="default">Terminé</Badge>;
       default:
         return <Badge>{statut}</Badge>;
     }

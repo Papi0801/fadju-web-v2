@@ -538,7 +538,7 @@ const DemandesRendezVousPage: React.FC = () => {
       case 'reportee':
         return 'secondary';
       case 'terminee':
-        return 'outline';
+        return 'default';
       case 'en_attente':
       default:
         return 'secondary';
@@ -824,11 +824,11 @@ const DemandesRendezVousPage: React.FC = () => {
 
                                 {/* Type et spécialité */}
                                 <div className="flex items-center space-x-4 text-sm text-muted-foreground mb-3">
-                                  <Badge variant="outline" className="text-xs">
+                                  <Badge variant="default" className="text-xs">
                                     {rdv.type}
                                   </Badge>
                                   {rdv.specialite && (
-                                    <Badge variant="outline" className="text-xs">
+                                    <Badge variant="default" className="text-xs">
                                       {rdv.specialite}
                                     </Badge>
                                   )}

@@ -167,7 +167,7 @@ const MedecinPlanningPage: React.FC = () => {
       case 'annulee':
         return <Badge variant="destructive">Annulé</Badge>;
       case 'terminee':
-        return <Badge variant="outline">Terminé</Badge>;
+        return <Badge variant="default">Terminé</Badge>;
       default:
         return <Badge>{statut}</Badge>;
     }
@@ -309,7 +309,7 @@ const MedecinPlanningPage: React.FC = () => {
                     </div>
                   </div>
                   <div className="flex items-center space-x-2 mt-2">
-                    <Badge variant="outline" className="text-xs">
+                    <Badge variant="default" className="text-xs">
                       {selectedEvent.resource.patient.groupe_sanguin}
                     </Badge>
                     {selectedEvent.resource.patient.allergie && (

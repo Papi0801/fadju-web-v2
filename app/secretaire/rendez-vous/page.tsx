@@ -562,11 +562,11 @@ const RendezVousPage: React.FC = () => {
                                 <Badge variant={getStatutBadgeVariant(rdv.statut)} className="text-xs">
                                   {getStatutLabel(rdv.statut)}
                                 </Badge>
-                                <Badge variant="outline" className="text-xs">
+                                <Badge variant="default" className="text-xs">
                                   {rdv.type}
                                 </Badge>
                                 {rdv.specialite && (
-                                  <Badge variant="outline" className="text-xs">
+                                  <Badge variant="default" className="text-xs">
                                     {rdv.specialite}
                                   </Badge>
                                 )}

@@ -153,13 +153,13 @@ const PatientSelectionModal: React.FC<PatientSelectionModalProps> = ({ isOpen, o
                           </div>
                         </div>
                         <div className="flex items-center space-x-2 mt-2">
-                          <Badge variant="outline" className="text-xs">
+                          <Badge variant="default" className="text-xs">
                             {patient.genre}
                           </Badge>
-                          <Badge variant="outline" className="text-xs">
+                          <Badge variant="default" className="text-xs">
                             {dossierPatientService.calculateAge(patient.date_naissance.toDate())} ans
                           </Badge>
-                          <Badge variant="outline" className="text-xs">
+                          <Badge variant="default" className="text-xs">
                             {patient.groupe_sanguin}
                           </Badge>
                         </div>
@@ -390,7 +390,7 @@ const NouveauRendezVousPage: React.FC = () => {
                           </div>
                         </div>
                         <div className="flex items-center space-x-2 mt-3">
-                          <Badge variant="outline">
+                          <Badge variant="default">
                             {selectedPatient.groupe_sanguin}
                           </Badge>
                           {selectedPatient.allergie && (

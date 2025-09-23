@@ -218,7 +218,7 @@ const MedecinProfilPage: React.FC = () => {
                     <Stethoscope className="w-3 h-3 mr-1" />
                     {user.specialite || 'Spécialité non renseignée'}
                   </Badge>
-                  <Badge variant="outline">
+                  <Badge variant="default">
                     <Calendar className="w-3 h-3 mr-1" />
                     Médecin depuis {user.date_creation && typeof user.date_creation.toDate === 'function' 
                       ? user.date_creation.toDate().toLocaleDateString('fr-FR', { year: 'numeric', month: 'long' })

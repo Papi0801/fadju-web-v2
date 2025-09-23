@@ -875,7 +875,7 @@ const SuperAdminEtablissementsPage: React.FC = () => {
                     </div>
                     <div className="flex justify-between">
                       <span>Terminés</span>
-                      <Badge variant="outline">{selectedStats.rdvTermines}</Badge>
+                      <Badge variant="default">{selectedStats.rdvTermines}</Badge>
                     </div>
                     <div className="flex justify-between">
                       <span>Annulés</span>

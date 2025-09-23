@@ -274,7 +274,7 @@ const TestDataPage: React.FC = () => {
                   </div>
                   <div>
                     <label className="font-medium text-muted-foreground">Groupe sanguin</label>
-                    <Badge variant="outline" className="text-red-600 border-red-200">
+                    <Badge variant="default" className="text-red-600 border-red-200">
                       {patient.groupe_sanguin}
                     </Badge>
                   </div>

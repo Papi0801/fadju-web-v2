@@ -218,7 +218,7 @@ const ProfilPage: React.FC = () => {
                 <p className="text-muted-foreground">{user.email}</p>
                 <div className="flex items-center space-x-3 mt-3">
                   {getRoleBadge()}
-                  <Badge variant="outline">
+                  <Badge variant="default">
                     <Calendar className="w-3 h-3 mr-1" />
                     Membre depuis {user.date_creation && typeof user.date_creation.toDate === 'function' 
                       ? user.date_creation.toDate().toLocaleDateString('fr-FR', { year: 'numeric', month: 'long' })
