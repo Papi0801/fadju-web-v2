@@ -165,13 +165,13 @@ export const useRendezVousStore = create<RendezVousStore>((set, get) => ({
     set({ loading: true, error: null });
     try {
       await rendezVousService.update(id, {
-        statut: 'confirme',
+        statut: 'confirmee',
         medecin_id: medecinId,
       });
       
       // Mettre à jour les listes locales
       const updateRendezVous = (rv: RendezVous) =>
-        rv.id === id ? { ...rv, statut: 'confirme' as const, medecin_id: medecinId } : rv;
+        rv.id === id ? { ...rv, statut: 'confirmee' as const, medecin_id: medecinId } : rv;
 
       const { rendezVous, rendezVousEnAttente, rendezVousAujourdhui } = get();
       set({

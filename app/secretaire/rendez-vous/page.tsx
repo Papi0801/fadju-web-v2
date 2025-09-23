@@ -161,8 +161,8 @@ const RendezVousPage: React.FC = () => {
     if (selectedDate) {
       const selectedDateObj = new Date(selectedDate);
       filtered = filtered.filter(rdv => {
-        if (!rdv.date_rdv) return false;
-        const rdvDate = rdv.date_rdv.toDate();
+        if (!rdv.date_rendez_vous) return false;
+        const rdvDate = rdv.date_rendez_vous.toDate();
         return (
           rdvDate.getFullYear() === selectedDateObj.getFullYear() &&
           rdvDate.getMonth() === selectedDateObj.getMonth() &&
@@ -174,7 +174,7 @@ const RendezVousPage: React.FC = () => {
     setFilteredRendezVous(filtered);
   };
 
-  const handleStatusChange = async (rdvId: string, newStatus: 'confirme' | 'annule') => {
+  const handleStatusChange = async (rdvId: string, newStatus: 'confirmee' | 'annule') => {
     if (!user?.id) return;
     
     try {
@@ -185,7 +185,7 @@ const RendezVousPage: React.FC = () => {
         router.push('/secretaire/rendez-vous/demandes');
         return;
       }
-      toast.success(`Rendez-vous ${newStatus === 'confirme' ? 'confirmé' : 'annulé'} avec succès`);
+      toast.success(`Rendez-vous ${newStatus === 'confirmee' ? 'confirmé' : 'annulé'} avec succès`);
       fetchData();
     } catch (error) {
       console.error('Erreur:', error);
@@ -575,7 +575,7 @@ const RendezVousPage: React.FC = () => {
                           </div>
                           <div className="text-right">
                             <p className="text-sm font-medium text-foreground">
-                              {rdv.date_rdv && format(rdv.date_rdv.toDate(), 'dd MMM yyyy', { locale: fr })}
+                              {rdv.date_rendez_vous && format(rdv.date_rendez_vous.toDate(), 'dd MMM yyyy', { locale: fr })}
                             </p>
                             <p className="text-sm text-muted-foreground">
                               {getHeureRdv(rdv)}
@@ -939,7 +939,7 @@ const RendezVousPage: React.FC = () => {
                   <h3 className="font-semibold mb-2">Détails du rendez-vous</h3>
                   <div className="space-y-2 text-sm">
                     <p><span className="font-medium">Patient:</span> {getPatientInfo(confirmModal.rdv.patient_id)?.nom} {getPatientInfo(confirmModal.rdv.patient_id)?.prenom}</p>
-                    <p><span className="font-medium">Date:</span> {confirmModal.rdv.date_rdv?.seconds ? new Date(confirmModal.rdv.date_rdv.seconds * 1000).toLocaleDateString('fr-FR') : 'Date non définie'}</p>
+                    <p><span className="font-medium">Date:</span> {confirmModal.rdv.date_rendez_vous?.seconds ? new Date(confirmModal.rdv.date_rendez_vous.seconds * 1000).toLocaleDateString('fr-FR') : 'Date non définie'}</p>
                     <p><span className="font-medium">Heure:</span> {getHeureRdv(confirmModal.rdv)}</p>
                     <p><span className="font-medium">Motif:</span> {confirmModal.rdv.motif}</p>
                   </div>

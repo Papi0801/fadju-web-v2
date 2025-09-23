@@ -135,7 +135,7 @@ async function createTestRendezVous() {
   console.log('  date_rendez_vous: "2024-12-15T14:00:00Z",');
   console.log('  creneau_horaire: "14:00 - 14:30",');
   console.log('  motif: "Consultation de contrôle",');
-  console.log('  statut: "confirme",');
+  console.log('  statut: "confirmee",');
   console.log('  type: "consultation",');
   console.log('  lieu: "Cabinet médical",');
   console.log('  specialite: "Médecine générale",');

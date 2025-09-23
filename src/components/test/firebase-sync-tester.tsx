@@ -319,7 +319,7 @@ export const FirebaseSyncTester: React.FC<SyncTestProps> = ({ className }) => {
 
       // 2. Simuler confirmation (Mobile - Patient)
       await setDoc(rdvRef, {
-        statut: 'confirme',
+        statut: 'confirmee',
         confirmation_patient: true,
         date_confirmation: Timestamp.now()
       }, { merge: true });

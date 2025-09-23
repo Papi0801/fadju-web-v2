@@ -444,8 +444,8 @@ const DemandesRendezVousPage: React.FC = () => {
     if (selectedDate) {
       const selectedDateObj = new Date(selectedDate);
       filtered = filtered.filter(rdv => {
-        if (!rdv.date_rdv) return false;
-        const rdvDate = rdv.date_rdv.toDate();
+        if (!rdv.date_rendez_vous) return false;
+        const rdvDate = rdv.date_rendez_vous.toDate();
         return (
           rdvDate.getFullYear() === selectedDateObj.getFullYear() &&
           rdvDate.getMonth() === selectedDateObj.getMonth() &&
@@ -808,7 +808,7 @@ const DemandesRendezVousPage: React.FC = () => {
                                 <div className="flex items-center space-x-4 text-sm text-muted-foreground mb-2">
                                   <div className="flex items-center space-x-1">
                                     <CalendarDays className="w-4 h-4" />
-                                    <span>{rdv.date_rdv && format(rdv.date_rdv.toDate(), 'dd MMMM yyyy', { locale: fr })}</span>
+                                    <span>{rdv.date_rendez_vous && format(rdv.date_rendez_vous.toDate(), 'dd MMMM yyyy', { locale: fr })}</span>
                                   </div>
                                   <div className="flex items-center space-x-1">
                                     <Clock className="w-4 h-4" />

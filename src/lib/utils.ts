@@ -66,7 +66,7 @@ export function validatePhoneSenegal(phone: string): boolean {
 export function getStatusColor(status: string): string {
   const statusColors: { [key: string]: string } = {
     'en_attente': 'text-yellow-600 bg-yellow-50 border-yellow-200',
-    'confirme': 'text-green-600 bg-green-50 border-green-200',
+    'confirmee': 'text-green-600 bg-green-50 border-green-200',
     'annule': 'text-red-600 bg-red-50 border-red-200',
     'termine': 'text-blue-600 bg-blue-50 border-blue-200',
     'valide': 'text-green-600 bg-green-50 border-green-200',
@@ -82,7 +82,7 @@ export function getStatusColor(status: string): string {
 export function getStatusLabel(status: string): string {
   const statusLabels: { [key: string]: string } = {
     'en_attente': 'En attente',
-    'confirme': 'Confirmé',
+    'confirmee': 'Confirmé',
     'annule': 'Annulé',
     'termine': 'Terminé',
     'valide': 'Validé',

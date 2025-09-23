@@ -80,8 +80,8 @@ const MedecinDashboardPage: React.FC = () => {
       tomorrow.setDate(tomorrow.getDate() + 1);
 
       const consultationsAujourdhui = rdvList.filter(rdv => {
-        if (!rdv.date_rdv) return false;
-        const rdvDate = rdv.date_rdv.toDate();
+        if (!rdv.date_rendez_vous) return false;
+        const rdvDate = rdv.date_rendez_vous.toDate();
         return rdvDate >= today && rdvDate < tomorrow && (rdv.statut === 'confirmee' || rdv.statut === 'confirme');
       }).length;
 
@@ -89,8 +89,8 @@ const MedecinDashboardPage: React.FC = () => {
 
       // Prochain RDV (le plus proche dans le futur)
       const futureRdv = rdvList
-        .filter(rdv => rdv.date_rdv && rdv.date_rdv.toDate() > new Date() && (rdv.statut === 'confirmee' || rdv.statut === 'confirme'))
-        .sort((a, b) => a.date_rdv.toDate().getTime() - b.date_rdv.toDate().getTime());
+        .filter(rdv => rdv.date_rendez_vous && rdv.date_rendez_vous.toDate() > new Date() && (rdv.statut === 'confirmee' || rdv.statut === 'confirme'))
+        .sort((a, b) => a.date_rendez_vous.toDate().getTime() - b.date_rendez_vous.toDate().getTime());
       
       const prochainRdv = futureRdv.length > 0 ? futureRdv[0] : null;
 
@@ -120,8 +120,8 @@ const MedecinDashboardPage: React.FC = () => {
   const getNextAppointments = () => {
     const today = new Date();
     return rendezVous
-      .filter(rdv => rdv.date_rdv && rdv.date_rdv.toDate() > today && (rdv.statut === 'confirmee' || rdv.statut === 'confirme'))
-      .sort((a, b) => a.date_rdv.toDate().getTime() - b.date_rdv.toDate().getTime())
+      .filter(rdv => rdv.date_rendez_vous && rdv.date_rendez_vous.toDate() > today && (rdv.statut === 'confirmee' || rdv.statut === 'confirme'))
+      .sort((a, b) => a.date_rendez_vous.toDate().getTime() - b.date_rendez_vous.toDate().getTime())
       .slice(0, 3);
   };
 
@@ -262,7 +262,7 @@ const MedecinDashboardPage: React.FC = () => {
                   <div>
                     <h3 className="font-semibold">{getPatientName(stats.prochainRdv.patient_id)}</h3>
                     <p className="text-sm text-muted-foreground">
-                      {format(stats.prochainRdv.date_rdv.toDate(), 'EEEE dd MMMM yyyy à HH:mm', { locale: fr })}
+                      {format(stats.prochainRdv.date_rendez_vous.toDate(), 'EEEE dd MMMM yyyy à HH:mm', { locale: fr })}
                     </p>
                     {stats.prochainRdv.motif && (
                       <p className="text-sm text-muted-foreground mt-1">
@@ -362,7 +362,7 @@ const MedecinDashboardPage: React.FC = () => {
                         <div>
                           <p className="font-medium text-sm">{getPatientName(rdv.patient_id)}</p>
                           <p className="text-xs text-muted-foreground">
-                            {format(rdv.date_rdv.toDate(), 'dd/MM à HH:mm')}
+                            {format(rdv.date_rendez_vous.toDate(), 'dd/MM à HH:mm')}
                           </p>
                           {getPatientInfo(rdv.patient_id) && (
                             <p className="text-xs text-muted-foreground">

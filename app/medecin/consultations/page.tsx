@@ -137,7 +137,7 @@ const ConsultationsPage: React.FC = () => {
     if (selectedDate) {
       const selectedDateObj = new Date(selectedDate);
       filtered = filtered.filter(rdv => {
-        const rdvDate = rdv.date_rdv.toDate();
+        const rdvDate = rdv.date_rendez_vous.toDate();
         return (
           rdvDate.getFullYear() === selectedDateObj.getFullYear() &&
           rdvDate.getMonth() === selectedDateObj.getMonth() &&
@@ -156,7 +156,7 @@ const ConsultationsPage: React.FC = () => {
         const rdv = rendezVous.find(r => r.id === rdvId);
         if (!rdv) return;
         
-        const rdvDate = rdv.date_rdv.toDate();
+        const rdvDate = rdv.date_rendez_vous.toDate();
         const now = new Date();
         
         if (rdvDate > now) {
@@ -186,7 +186,7 @@ const ConsultationsPage: React.FC = () => {
       await rendezVousService.updateStatut(selectedRdv.id, 'terminee');
       
       // Créer l'enregistrement dans les résultats médicaux
-      const dateConsultation = selectedRdv.date_rdv.toDate();
+      const dateConsultation = selectedRdv.date_rendez_vous.toDate();
       
       if (consultationData.typeAnalyse && consultationData.resultatsAnalyse) {
         // Si c'est une analyse, créer un résultat d'analyse
@@ -307,7 +307,7 @@ const ConsultationsPage: React.FC = () => {
 
   const groupByDate = (rdvList: RendezVous[]) => {
     const grouped = rdvList.reduce((groups, rdv) => {
-      const date = format(rdv.date_rdv.toDate(), 'yyyy-MM-dd');
+      const date = format(rdv.date_rendez_vous.toDate(), 'yyyy-MM-dd');
       if (!groups[date]) {
         groups[date] = [];
       }
@@ -323,7 +323,7 @@ const ConsultationsPage: React.FC = () => {
     return sortedDates.map(date => ({
       date,
       rdvs: grouped[date].sort((a, b) => 
-        a.date_rdv.toDate().getTime() - b.date_rdv.toDate().getTime()
+        a.date_rendez_vous.toDate().getTime() - b.date_rendez_vous.toDate().getTime()
       )
     }));
   };
@@ -458,8 +458,7 @@ const ConsultationsPage: React.FC = () => {
                 className="flex h-10 rounded-md border border-border bg-input px-3 py-2 text-sm"
               >
                 <option value="">Tous les statuts</option>
-                <option value="confirme">Confirmé</option>
-                <option value="confirmee">Confirmé (nouveau)</option>
+                <option value="confirmee">Confirmé</option>
                 <option value="termine">Terminé</option>
                 <option value="terminee">Terminé (nouveau)</option>
                 <option value="reportee">Reporté</option>

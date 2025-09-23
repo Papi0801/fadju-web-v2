@@ -35,8 +35,8 @@ const MedecinPage: React.FC = () => {
         tomorrow.setDate(tomorrow.getDate() + 1);
 
         const rdvAujourdhui = allRdv.filter(rdv => {
-          if (!rdv.date_rdv) return false;
-          const rdvDate = rdv.date_rdv.toDate();
+          if (!rdv.date_rendez_vous) return false;
+          const rdvDate = rdv.date_rendez_vous.toDate();
           return rdvDate >= today && rdvDate < tomorrow && rdv.statut === 'confirmee';
         }).length;
 
@@ -46,16 +46,16 @@ const MedecinPage: React.FC = () => {
         // RDV confirmés en attente (passés non finalisés)
         const now = new Date();
         const rdvEnAttente = allRdv.filter(rdv => {
-          if (!rdv.date_rdv) return false;
-          const rdvDate = rdv.date_rdv.toDate();
+          if (!rdv.date_rendez_vous) return false;
+          const rdvDate = rdv.date_rendez_vous.toDate();
           return rdv.statut === 'confirmee' && rdvDate < now;
         }).length;
 
         // Consultations terminées ce mois
         const startOfMonth = new Date(today.getFullYear(), today.getMonth(), 1);
         const consultationsMois = allRdv.filter(rdv => {
-          if (!rdv.date_rdv) return false;
-          const rdvDate = rdv.date_rdv.toDate();
+          if (!rdv.date_rendez_vous) return false;
+          const rdvDate = rdv.date_rendez_vous.toDate();
           return rdv.statut === 'terminee' && rdvDate >= startOfMonth;
         }).length;
 

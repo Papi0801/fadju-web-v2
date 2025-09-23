@@ -294,7 +294,7 @@ const NouveauRendezVousPage: React.FC = () => {
       await rendezVousService.createDemandeRendezVous({
         patient_id: selectedPatient.patient_id,
         etablissement_id: user.etablissement_id,
-        date_rdv: dateRdv,
+        date_rendez_vous: dateRdv,
         heure_debut: formData.heure_debut,
         heure_fin: formData.heure_fin,
         motif: formData.motif,

@@ -105,7 +105,7 @@ const SecretairePlanningPage: React.FC = () => {
 
       // Créer les événements pour le calendrier
       const calendarEvents: (CalendarEvent | null)[] = rendezVousList.map(rv => {
-        const dateRdv = rv.date_rdv.toDate();
+        const dateRdv = rv.date_rendez_vous.toDate();
         
         // Vérifier que les heures existent et sont valides
         if (!rv.heure_debut || !rv.heure_fin) {

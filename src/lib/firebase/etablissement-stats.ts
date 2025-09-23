@@ -92,10 +92,10 @@ class EtablissementStatsService {
       const rdvTermines = rendezVous.filter(rv => rv.statut === 'terminee' || rv.statut === 'termine').length;
       
       const rdv30j = rendezVous.filter(rv => 
-        rv.date_rdv && rv.date_rdv.toDate() > jour30Ago
+        rv.date_rendez_vous && rv.date_rendez_vous.toDate() > jour30Ago
       ).length;
       const rdv7j = rendezVous.filter(rv => 
-        rv.date_rdv && rv.date_rdv.toDate() > jour7Ago
+        rv.date_rendez_vous && rv.date_rendez_vous.toDate() > jour7Ago
       ).length;
 
       // Calculs de performance
@@ -105,7 +105,7 @@ class EtablissementStatsService {
 
       // Calculs de croissance
       const rdv60j = rendezVous.filter(rv => 
-        rv.date_rdv && rv.date_rdv.toDate() > jour60Ago && rv.date_rdv.toDate() <= jour30Ago
+        rv.date_rendez_vous && rv.date_rendez_vous.toDate() > jour60Ago && rv.date_rendez_vous.toDate() <= jour30Ago
       ).length;
       const patients60j = patients.filter(p => 
         p.date_creation && p.date_creation.toDate() > jour60Ago && p.date_creation.toDate() <= jour30Ago
@@ -117,7 +117,7 @@ class EtablissementStatsService {
       // Dernières activités
       const derniereActivite = this.getDerniereActivite(medecins, secretaires);
       const dernierRdv = rendezVous.length > 0 
-        ? rendezVous.sort((a, b) => b.date_rdv.toDate().getTime() - a.date_rdv.toDate().getTime())[0].date_rdv.toDate()
+        ? rendezVous.sort((a, b) => b.date_rendez_vous.toDate().getTime() - a.date_rendez_vous.toDate().getTime())[0].date_rendez_vous.toDate()
         : undefined;
 
       return {
