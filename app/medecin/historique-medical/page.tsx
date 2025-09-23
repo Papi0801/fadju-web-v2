@@ -136,7 +136,7 @@ const HistoriqueMedicalPage: React.FC = () => {
       case 'ordonnance':
         return 'secondary';
       default:
-        return 'outline';
+        return 'default';
     }
   };
 
