@@ -32,7 +32,8 @@ import {
   Loading,
   Modal,
 } from '@/components/ui';
-import { resultatsMedicauxService, ResultatMedical } from '@/lib/firebase/resultats-medicaux-service';
+import { resultatsMedicauxService } from '@/lib/firebase/resultats-medicaux-service';
+import { ResultatMedical } from '@/types';
 import { dossierPatientService } from '@/lib/firebase/dossier-patient';
 import { format } from 'date-fns';
 import { fr } from 'date-fns/locale';
