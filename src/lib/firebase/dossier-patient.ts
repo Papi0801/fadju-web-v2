@@ -246,7 +246,6 @@ export const dossierPatientService = {
           notes: 'Résultats montrant un déséquilibre lipidique et une glycémie légèrement élevée. Recommandation de suivi diététique et contrôle dans 3 mois. Patient diabétique connu, ajustement possible du traitement.',
           statut: 'disponible' as const,
           date_resultat: new Date('2024-01-15T09:30:00'),
-          date_consultation: new Date('2024-01-10T14:00:00'),
           date_creation: new Date('2024-01-15T10:00:00'),
         },
         {
@@ -270,7 +269,6 @@ export const dossierPatientService = {
           notes: 'Radiographie thoracique normale. Pas de signe pathologique décelable. Cœur et poumons d\'aspect normal pour l\'âge.',
           statut: 'disponible' as const,
           date_resultat: new Date('2024-02-08T11:15:00'),
-          date_consultation: new Date('2024-02-08T10:00:00'),
           date_creation: new Date('2024-02-08T11:30:00'),
         },
         {
@@ -294,7 +292,6 @@ export const dossierPatientService = {
           notes: 'Patient diabétique avec équilibre glycémique insuffisant. HbA1c à 7.8% nécessite une intensification du traitement. Hypertension artérielle concomitante bien contrôlée. Surveillance du poids recommandée. Prochain contrôle dans 3 mois avec bilan lipidique.',
           statut: 'disponible' as const,
           date_resultat: new Date('2024-03-22T15:45:00'),
-          date_consultation: new Date('2024-03-22T15:00:00'),
           date_creation: new Date('2024-03-22T16:00:00'),
         },
         {
@@ -319,7 +316,6 @@ export const dossierPatientService = {
           notes: 'Échographie abdominale normale. Tous les organes examinés présentent un aspect échographique normal. Pas de signe de complications liées au diabète au niveau des organes visualisés.',
           statut: 'disponible' as const,
           date_resultat: new Date('2024-04-10T16:20:00'),
-          date_consultation: new Date('2024-04-10T15:30:00'),
           date_creation: new Date('2024-04-10T16:45:00'),
           fichiers_joints: {
             id: 'echo_abd_20240410',
@@ -333,7 +329,6 @@ export const dossierPatientService = {
         await addDoc(collection(db, RESULTATS_COLLECTION), {
           ...resultat,
           date_resultat: serverTimestamp(),
-          date_consultation: serverTimestamp(),
           date_creation: serverTimestamp(),
         });
       }

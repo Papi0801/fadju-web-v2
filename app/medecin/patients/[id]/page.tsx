@@ -311,7 +311,7 @@ const PatientDetailPage: React.FC = () => {
                             <p className="text-xs text-muted-foreground flex items-center space-x-1 mt-1">
                               <Clock className="w-3 h-3" />
                               <span>
-                                {resultat.date_consultation && format(resultat.date_consultation.toDate(), 'dd/MM/yyyy', { locale: fr })}
+                                {resultat.date_resultat && format(resultat.date_resultat.toDate(), 'dd/MM/yyyy', { locale: fr })}
                               </span>
                             </p>
                             {/* Aperçu du contenu */}
@@ -436,11 +436,11 @@ const PatientDetailPage: React.FC = () => {
                   {selectedResultat.date_creation ? format(selectedResultat.date_creation.toDate(), 'dd MMMM yyyy à HH:mm', { locale: fr }) : 'Non disponible'}
                 </p>
               </div>
-              {selectedResultat.date_consultation && (
+              {selectedResultat.date_resultat && (
                 <div className="col-span-2">
-                  <label className="text-sm font-medium text-muted-foreground">Date de consultation</label>
+                  <label className="text-sm font-medium text-muted-foreground">Date de résultat</label>
                   <p className="text-lg font-semibold">
-                    {selectedResultat.date_consultation ? format(selectedResultat.date_consultation.toDate(), 'dd MMMM yyyy à HH:mm', { locale: fr }) : 'Non disponible'}
+                    {selectedResultat.date_resultat ? format(selectedResultat.date_resultat.toDate(), 'dd MMMM yyyy à HH:mm', { locale: fr }) : 'Non disponible'}
                   </p>
                 </div>
               )}

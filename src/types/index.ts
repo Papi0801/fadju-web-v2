@@ -100,7 +100,6 @@ export interface DossierPatient {
 // Résultats médicaux
 export interface ResultatMedical {
   id: string;
-  date_consultation?: Timestamp | null;
   date_creation: Timestamp;
   date_resultat: Timestamp;
   description: string;

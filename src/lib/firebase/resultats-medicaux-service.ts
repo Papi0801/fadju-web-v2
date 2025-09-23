@@ -15,46 +15,9 @@ import {
 } from 'firebase/firestore';
 import { db } from './config';
 import { convertTimestamp } from './utils';
+import { ResultatMedical } from '@/types';
 
 const COLLECTION_NAME = 'resultats_medicaux';
-
-export interface ResultatMedical {
-  id: string;
-  patient_id: string;
-  medecin_id: string;
-  nom_medecin: string;
-  rendez_vous_id: string;
-  date_consultation: Timestamp;
-  date_creation: Timestamp;
-  
-  // Type de résultat
-  type: 'consultation' | 'analyse' | 'ordonnance' | 'suivi';
-  titre: string;
-  description: string;
-  
-  // Données de consultation
-  observations?: string;
-  diagnostic?: string;
-  traitement_prescrit?: string;
-  ordonnance?: string;
-  analyses_demandees?: string;
-  
-  // Données d'analyse (si type = 'analyse')
-  type_analyse?: string; // "Sanguin", "Urinaire", etc.
-  nom_analyse?: string; // "NFS", "Glycémie", etc.
-  resultats_analyse?: string;
-  valeurs_normales?: string;
-  interpretation?: string;
-  
-  // Métadonnées
-  statut: 'brouillon' | 'finalise' | 'transmis';
-  notes?: string;
-  recommandations?: string;
-  
-  // Données techniques (pour compatibilité)
-  donnees?: Record<string, any>;
-  fichiers_joints?: Record<string, any>;
-}
 
 export const resultatsMedicauxService = {
   // Créer un résultat médical à partir d'une consultation finalisée
@@ -63,7 +26,7 @@ export const resultatsMedicauxService = {
     medecin_id: string;
     nom_medecin: string;
     rendez_vous_id: string;
-    date_consultation: Date;
+    date_resultat: Date;
     observations: string;
     ordonnance?: string;
     analyses_demandees?: string;
@@ -73,10 +36,10 @@ export const resultatsMedicauxService = {
     try {
       const resultat: Omit<ResultatMedical, 'id'> = {
         ...data,
-        date_consultation: Timestamp.fromDate(data.date_consultation),
+        date_resultat: Timestamp.fromDate(data.date_resultat),
         date_creation: serverTimestamp() as Timestamp,
         type: 'consultation',
-        titre: `Consultation du ${data.date_consultation.toLocaleDateString('fr-FR')}`,
+        titre: `Consultation du ${data.date_resultat.toLocaleDateString('fr-FR')}`,
         description: data.observations,
         traitement_prescrit: data.ordonnance,
         statut: 'finalise',
@@ -97,7 +60,7 @@ export const resultatsMedicauxService = {
     medecin_id: string;
     nom_medecin: string;
     rendez_vous_id: string;
-    date_consultation: Date;
+    date_resultat: Date;
     type_analyse: string;
     nom_analyse: string;
     resultats_analyse: string;
@@ -107,10 +70,10 @@ export const resultatsMedicauxService = {
     try {
       const resultat: Omit<ResultatMedical, 'id'> = {
         ...data,
-        date_consultation: Timestamp.fromDate(data.date_consultation),
+        date_resultat: Timestamp.fromDate(data.date_resultat),
         date_creation: serverTimestamp() as Timestamp,
         type: 'analyse',
-        titre: `${data.nom_analyse} - ${data.date_consultation.toLocaleDateString('fr-FR')}`,
+        titre: `${data.nom_analyse} - ${data.date_resultat.toLocaleDateString('fr-FR')}`,
         description: `Résultats de l'analyse ${data.nom_analyse} (${data.type_analyse})`,
         observations: data.resultats_analyse,
         statut: 'finalise',
@@ -132,7 +95,7 @@ export const resultatsMedicauxService = {
         collection(db, COLLECTION_NAME),
         where('patient_id', '==', patientId),
         where('statut', '==', 'finalise'),
-        orderBy('date_consultation', 'desc')
+        orderBy('date_resultat', 'desc')
       );
 
       const querySnapshot = await getDocs(q);
@@ -152,7 +115,7 @@ export const resultatsMedicauxService = {
       let q = query(
         collection(db, COLLECTION_NAME),
         where('medecin_id', '==', medecinId),
-        orderBy('date_consultation', 'desc')
+        orderBy('date_resultat', 'desc')
       );
 
       if (limit_count) {
@@ -235,7 +198,7 @@ export const resultatsMedicauxService = {
         consultations: resultats.filter(r => r.type === 'consultation').length,
         analyses: resultats.filter(r => r.type === 'analyse').length,
         ce_mois: resultats.filter(r => {
-          const resultDate = r.date_consultation.toDate();
+          const resultDate = r.date_resultat.toDate();
           return resultDate >= startOfMonth;
         }).length,
       };
