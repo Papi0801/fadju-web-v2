@@ -395,24 +395,33 @@ const HistoriqueMedicalPage: React.FC = () => {
                   <div>
                     <h4 className="font-medium mb-2">Observations</h4>
                     <p className="text-sm bg-muted/30 p-3 rounded-lg">
-                      {selectedResultat.observations || selectedResultat.description}
+                      {selectedResultat.description}
                     </p>
                   </div>
                   
-                  {selectedResultat.traitement_prescrit && (
+                  {selectedResultat.notes && (
                     <div>
-                      <h4 className="font-medium mb-2">Traitement prescrit</h4>
+                      <h4 className="font-medium mb-2">Notes</h4>
                       <p className="text-sm bg-muted/30 p-3 rounded-lg">
-                        {selectedResultat.traitement_prescrit}
+                        {selectedResultat.notes}
                       </p>
                     </div>
                   )}
                   
-                  {selectedResultat.analyses_demandees && (
+                  {selectedResultat.donnees?.ordonnance && (
                     <div>
-                      <h4 className="font-medium mb-2">Analyses demandées</h4>
+                      <h4 className="font-medium mb-2">Ordonnance</h4>
                       <p className="text-sm bg-muted/30 p-3 rounded-lg">
-                        {selectedResultat.analyses_demandees}
+                        {selectedResultat.donnees.ordonnance}
+                      </p>
+                    </div>
+                  )}
+                  
+                  {selectedResultat.donnees?.diagnostic && (
+                    <div>
+                      <h4 className="font-medium mb-2">Diagnostic</h4>
+                      <p className="text-sm bg-muted/30 p-3 rounded-lg">
+                        {selectedResultat.donnees.diagnostic}
                       </p>
                     </div>
                   )}
@@ -425,13 +434,13 @@ const HistoriqueMedicalPage: React.FC = () => {
                     <div>
                       <h4 className="font-medium mb-2">Type d'analyse</h4>
                       <p className="text-sm bg-muted/30 p-3 rounded-lg">
-                        {selectedResultat.type_analyse}
+                        {selectedResultat.donnees?.type_analyse}
                       </p>
                     </div>
                     <div>
                       <h4 className="font-medium mb-2">Nom de l'analyse</h4>
                       <p className="text-sm bg-muted/30 p-3 rounded-lg">
-                        {selectedResultat.nom_analyse}
+                        {selectedResultat.donnees?.nom_analyse}
                       </p>
                     </div>
                   </div>
@@ -439,26 +448,26 @@ const HistoriqueMedicalPage: React.FC = () => {
                   <div>
                     <h4 className="font-medium mb-2">Résultats</h4>
                     <p className="text-sm bg-muted/30 p-3 rounded-lg">
-                      {selectedResultat.resultats_analyse || selectedResultat.observations}
+                      {selectedResultat.donnees?.resultats || selectedResultat.donnees?.observations}
                     </p>
                   </div>
                   
-                  {selectedResultat.interpretation && (
+                  {selectedResultat.donnees?.interpretation && (
                     <div>
                       <h4 className="font-medium mb-2">Interprétation</h4>
                       <p className="text-sm bg-muted/30 p-3 rounded-lg">
-                        {selectedResultat.interpretation}
+                        {selectedResultat.donnees.interpretation}
                       </p>
                     </div>
                   )}
                 </div>
               )}
 
-              {selectedResultat.recommandations && (
+              {selectedResultat.donnees?.recommandations && (
                 <div>
                   <h4 className="font-medium mb-2">Recommandations</h4>
                   <p className="text-sm bg-muted/30 p-3 rounded-lg">
-                    {selectedResultat.recommandations}
+                    {selectedResultat.donnees.recommandations}
                   </p>
                 </div>
               )}

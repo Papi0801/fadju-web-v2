@@ -305,7 +305,7 @@ const PatientDetailPage: React.FC = () => {
                             <h4 className="font-medium text-sm">{resultat.titre}</h4>
                             <p className="text-xs text-muted-foreground">
                               {resultat.type === 'consultation' ? 'Consultation' : 
-                               resultat.type === 'analyse' ? `Analyse - ${resultat.nom_analyse || 'Analyse médicale'}` : 
+                               resultat.type === 'analyse' ? `Analyse - ${resultat.donnees?.nom_analyse || 'Analyse médicale'}` : 
                                resultat.type} • {resultat.nom_medecin}
                             </p>
                             <p className="text-xs text-muted-foreground flex items-center space-x-1 mt-1">
@@ -316,18 +316,18 @@ const PatientDetailPage: React.FC = () => {
                             </p>
                             {/* Aperçu du contenu */}
                             <p className="text-xs text-muted-foreground mt-1 line-clamp-2">
-                              {resultat.diagnostic || 
-                               (resultat.observations && resultat.observations.substring(0, 100) + '...') ||
-                               (resultat.resultats_analyse && resultat.resultats_analyse.substring(0, 100) + '...') ||
-                               'Résultat médical'}
+                              {resultat.donnees?.diagnostic || 
+                               (resultat.donnees?.observations && resultat.donnees.observations.substring(0, 100) + '...') ||
+                               (resultat.donnees?.resultats && resultat.donnees.resultats.substring(0, 100) + '...') ||
+                               resultat.description || 'Résultat médical'}
                             </p>
                           </div>
                           <div className="flex flex-col items-end space-y-1">
                             <Badge 
                               variant="secondary" 
                               className={`text-xs ${
-                                resultat.statut === 'finalise' ? 'bg-green-100 text-green-800' :
-                                resultat.statut === 'brouillon' ? 'bg-yellow-100 text-yellow-800' :
+                                resultat.statut === 'disponible' ? 'bg-green-100 text-green-800' :
+                                resultat.statut === 'en_cours' ? 'bg-yellow-100 text-yellow-800' :
                                 'bg-gray-100 text-gray-800'
                               }`}
                             >
@@ -418,8 +418,8 @@ const PatientDetailPage: React.FC = () => {
                 <Badge 
                   variant="secondary" 
                   className={`text-sm ${
-                    selectedResultat.statut === 'finalise' ? 'bg-green-100 text-green-800' :
-                    selectedResultat.statut === 'brouillon' ? 'bg-yellow-100 text-yellow-800' :
+                    selectedResultat.statut === 'disponible' ? 'bg-green-100 text-green-800' :
+                    selectedResultat.statut === 'en_cours' ? 'bg-yellow-100 text-yellow-800' :
                     'bg-gray-100 text-gray-800'
                   }`}
                 >
@@ -451,20 +451,20 @@ const PatientDetailPage: React.FC = () => {
               <label className="text-sm font-medium text-muted-foreground">Observations du médecin</label>
               <div className="mt-2 p-4 bg-muted/30 rounded-lg">
                 <p className="text-sm whitespace-pre-wrap">
-                  {selectedResultat.observations || 'Aucune observation spécifique pour cette consultation.'}
+                  {selectedResultat.donnees?.observations || selectedResultat.description || 'Aucune observation spécifique pour cette consultation.'}
                 </p>
               </div>
             </div>
 
             {/* Ordonnance prescrite */}
-            {selectedResultat.ordonnance && (
+            {(selectedResultat.donnees?.ordonnance || selectedResultat.notes) && (
               <div>
                 <label className="text-sm font-medium text-muted-foreground">Ordonnance prescrite</label>
                 <div className="mt-2 p-4 bg-blue-50 dark:bg-blue-900/20 rounded-lg border border-blue-200">
                   <div className="flex items-start space-x-2">
                     <Pill className="w-5 h-5 text-blue-600 mt-0.5" />
                     <p className="text-sm whitespace-pre-wrap text-blue-800 dark:text-blue-200">
-                      {selectedResultat.ordonnance}
+                      {selectedResultat.donnees?.ordonnance || selectedResultat.notes}
                     </p>
                   </div>
                 </div>
@@ -472,14 +472,14 @@ const PatientDetailPage: React.FC = () => {
             )}
 
             {/* Analyses demandées */}
-            {selectedResultat.analyses_demandees && (
+            {selectedResultat.donnees?.analyses && (
               <div>
                 <label className="text-sm font-medium text-muted-foreground">Analyses demandées</label>
                 <div className="mt-2 p-4 bg-amber-50 dark:bg-amber-900/20 rounded-lg border border-amber-200">
                   <div className="flex items-start space-x-2">
                     <FileText className="w-5 h-5 text-amber-600 mt-0.5" />
                     <p className="text-sm whitespace-pre-wrap text-amber-800 dark:text-amber-200">
-                      {selectedResultat.analyses_demandees}
+                      {selectedResultat.donnees.analyses}
                     </p>
                   </div>
                 </div>
@@ -487,24 +487,24 @@ const PatientDetailPage: React.FC = () => {
             )}
 
             {/* Diagnostic (si disponible) */}
-            {selectedResultat.diagnostic && (
+            {selectedResultat.donnees?.diagnostic && (
               <div>
                 <label className="text-sm font-medium text-muted-foreground">Diagnostic</label>
                 <div className="mt-2 p-4 bg-green-50 dark:bg-green-900/20 rounded-lg border border-green-200">
                   <p className="text-sm text-green-800 dark:text-green-200 font-medium">
-                    {selectedResultat.diagnostic}
+                    {selectedResultat.donnees.diagnostic}
                   </p>
                 </div>
               </div>
             )}
 
             {/* Recommandations */}
-            {selectedResultat.recommandations && (
+            {selectedResultat.donnees?.recommandations && (
               <div>
                 <label className="text-sm font-medium text-muted-foreground">Recommandations</label>
                 <div className="mt-2 p-4 bg-purple-50 dark:bg-purple-900/20 rounded-lg border border-purple-200">
                   <p className="text-sm text-purple-800 dark:text-purple-200">
-                    {selectedResultat.recommandations}
+                    {selectedResultat.donnees.recommandations}
                   </p>
                 </div>
               </div>
@@ -515,36 +515,36 @@ const PatientDetailPage: React.FC = () => {
               <div>
                 <label className="text-sm font-medium text-muted-foreground">Résultats de l'analyse</label>
                 <div className="mt-2 space-y-3">
-                  {selectedResultat.type_analyse && (
+                  {selectedResultat.donnees?.type_analyse && (
                     <div className="p-3 bg-muted/20 rounded-lg">
                       <label className="text-xs font-medium text-muted-foreground uppercase tracking-wider">
                         Type d'analyse
                       </label>
-                      <p className="text-sm font-semibold mt-1">{selectedResultat.type_analyse}</p>
+                      <p className="text-sm font-semibold mt-1">{selectedResultat.donnees.type_analyse}</p>
                     </div>
                   )}
-                  {selectedResultat.nom_analyse && (
+                  {selectedResultat.donnees?.nom_analyse && (
                     <div className="p-3 bg-muted/20 rounded-lg">
                       <label className="text-xs font-medium text-muted-foreground uppercase tracking-wider">
                         Nom de l'analyse
                       </label>
-                      <p className="text-sm font-semibold mt-1">{selectedResultat.nom_analyse}</p>
+                      <p className="text-sm font-semibold mt-1">{selectedResultat.donnees.nom_analyse}</p>
                     </div>
                   )}
-                  {selectedResultat.resultats_analyse && (
+                  {selectedResultat.donnees?.resultats && (
                     <div className="p-3 bg-muted/20 rounded-lg">
                       <label className="text-xs font-medium text-muted-foreground uppercase tracking-wider">
                         Résultats
                       </label>
-                      <p className="text-sm mt-1 whitespace-pre-wrap">{selectedResultat.resultats_analyse}</p>
+                      <p className="text-sm mt-1 whitespace-pre-wrap">{selectedResultat.donnees.resultats}</p>
                     </div>
                   )}
-                  {selectedResultat.interpretation && (
+                  {selectedResultat.donnees?.interpretation && (
                     <div className="p-3 bg-muted/20 rounded-lg">
                       <label className="text-xs font-medium text-muted-foreground uppercase tracking-wider">
                         Interprétation
                       </label>
-                      <p className="text-sm mt-1">{selectedResultat.interpretation}</p>
+                      <p className="text-sm mt-1">{selectedResultat.donnees.interpretation}</p>
                     </div>
                   )}
                 </div>

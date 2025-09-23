@@ -21,7 +21,7 @@ import {
 } from 'firebase/firestore';
 import { db } from './config';
 import { RendezVous } from '@/types';
-import { convertTimestamp } from './utils';
+import { convertTimestamp, normalizeRendezVous } from './utils';
 
 const COLLECTION_NAME = 'rendez_vous';
 
@@ -85,7 +85,7 @@ export const rendezVousService = {
       );
       
       const querySnapshot = await getDocs(q);
-      return querySnapshot.docs.map(doc => ({
+      return querySnapshot.docs.map(doc => normalizeRendezVous({
         id: doc.id,
         ...convertTimestamp(doc.data()),
       })) as RendezVous[];
@@ -157,7 +157,7 @@ export const rendezVousService = {
       );
       
       const querySnapshot = await getDocs(q);
-      return querySnapshot.docs.map(doc => ({
+      return querySnapshot.docs.map(doc => normalizeRendezVous({
         id: doc.id,
         ...convertTimestamp(doc.data()),
       })) as RendezVous[];

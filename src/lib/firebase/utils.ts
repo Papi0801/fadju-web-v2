@@ -99,3 +99,97 @@ export function isTimestamp(value: any): value is Timestamp {
   return value instanceof Timestamp || 
          (value && typeof value === 'object' && value.toDate && typeof value.toDate === 'function');
 }
+
+/**
+ * Normalise un rendez-vous pour assurer la compatibilité avec les anciennes données
+ * @param rdv - Le rendez-vous brut de Firestore
+ * @returns Le rendez-vous normalisé
+ */
+export function normalizeRendezVous(rdv: any): any {
+  if (!rdv) return rdv;
+
+  console.log('🔍 Normalisation RDV avant:', rdv.id, {
+    date_rdv: rdv.date_rdv ? 'existe' : 'manque',
+    date_rendez_vous: rdv.date_rendez_vous ? 'existe' : 'manque',
+    heure_debut: rdv.heure_debut,
+    heure_fin: rdv.heure_fin,
+    statut: rdv.statut
+  });
+
+  const normalized = { ...rdv };
+
+  // Compatibilité date_rdv -> date_rendez_vous
+  if (rdv.date_rdv && !rdv.date_rendez_vous) {
+    normalized.date_rendez_vous = rdv.date_rdv;
+    console.log('✅ Copie date_rdv vers date_rendez_vous');
+  }
+
+  // Compatibilité statut 'confirme' -> 'confirmee' et 'termine' -> 'terminee'
+  if (rdv.statut === 'confirme') {
+    normalized.statut = 'confirmee';
+    console.log('✅ Statut confirme -> confirmee');
+  } else if (rdv.statut === 'termine') {
+    normalized.statut = 'terminee';
+    console.log('✅ Statut termine -> terminee');
+  }
+
+  // S'assurer que les heures sont définies
+  if (!normalized.heure_debut || normalized.heure_debut === undefined) {
+    normalized.heure_debut = '09:00';
+    console.log('✅ Heure début par défaut: 09:00');
+  }
+  if (!normalized.heure_fin || normalized.heure_fin === undefined) {
+    normalized.heure_fin = '10:00';
+    console.log('✅ Heure fin par défaut: 10:00');
+  }
+
+  console.log('🔍 Normalisation RDV après:', {
+    date_rendez_vous: normalized.date_rendez_vous ? 'existe' : 'manque',
+    heure_debut: normalized.heure_debut,
+    heure_fin: normalized.heure_fin,
+    statut: normalized.statut
+  });
+
+  return normalized;
+}
+
+/**
+ * Normalise un résultat médical pour assurer la compatibilité
+ * @param resultat - Le résultat brut de Firestore
+ * @returns Le résultat normalisé
+ */
+export function normalizeResultatMedical(resultat: any): any {
+  if (!resultat) return resultat;
+
+  const normalized = { ...resultat };
+
+  // Compatibilité date_consultation -> date_resultat
+  if (resultat.date_consultation && !resultat.date_resultat) {
+    normalized.date_resultat = resultat.date_consultation;
+  }
+
+  // S'assurer que les champs obligatoires existent
+  if (!normalized.description) {
+    normalized.description = normalized.observations || 'Résultat médical';
+  }
+
+  if (!normalized.notes) {
+    normalized.notes = '';
+  }
+
+  if (!normalized.donnees) {
+    normalized.donnees = {
+      observations: normalized.observations || '',
+      ordonnance: normalized.ordonnance || normalized.traitement_prescrit || '',
+      diagnostic: normalized.diagnostic || '',
+      analyses: normalized.analyses_demandees || ''
+    };
+  }
+
+  // Compatibilité statut
+  if (normalized.statut === 'finalise') {
+    normalized.statut = 'disponible';
+  }
+
+  return normalized;
+}

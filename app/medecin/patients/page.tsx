@@ -60,9 +60,12 @@ const MedecinPatientsPage: React.FC = () => {
 
       // Récupérer tous les rendez-vous du médecin
       const rendezVous = await rendezVousService.getRendezVousByMedecin(user.id);
+      console.log('📋 Rendez-vous récupérés:', rendezVous.length);
+      console.log('📋 Premier RDV:', rendezVous[0]);
       
       // Extraire les IDs patients uniques
       const patientIds = [...new Set(rendezVous.map(rdv => rdv.patient_id))];
+      console.log('👥 Patients uniques:', patientIds);
       
       // Récupérer les dossiers patients
       const patientsData: PatientWithRdv[] = [];

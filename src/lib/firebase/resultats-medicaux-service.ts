@@ -14,7 +14,7 @@ import {
   Timestamp,
 } from 'firebase/firestore';
 import { db } from './config';
-import { convertTimestamp } from './utils';
+import { convertTimestamp, normalizeResultatMedical } from './utils';
 import { ResultatMedical } from '@/types';
 
 const COLLECTION_NAME = 'resultats_medicaux';
@@ -35,14 +35,23 @@ export const resultatsMedicauxService = {
   }): Promise<string> {
     try {
       const resultat: Omit<ResultatMedical, 'id'> = {
-        ...data,
+        patient_id: data.patient_id,
+        medecin_id: data.medecin_id,
+        nom_medecin: data.nom_medecin,
+        rendez_vous_id: data.rendez_vous_id,
         date_resultat: Timestamp.fromDate(data.date_resultat),
         date_creation: serverTimestamp() as Timestamp,
         type: 'consultation',
         titre: `Consultation du ${data.date_resultat.toLocaleDateString('fr-FR')}`,
-        description: data.observations,
-        traitement_prescrit: data.ordonnance,
-        statut: 'finalise',
+        description: data.observations || 'Consultation médicale',
+        notes: data.ordonnance || '',
+        statut: 'disponible',
+        donnees: {
+          observations: data.observations || '',
+          ordonnance: data.ordonnance || '',
+          diagnostic: data.diagnostic || '',
+          traitement: data.ordonnance || ''
+        }
       };
 
       const docRef = await addDoc(collection(db, COLLECTION_NAME), resultat);
@@ -69,14 +78,24 @@ export const resultatsMedicauxService = {
   }): Promise<string> {
     try {
       const resultat: Omit<ResultatMedical, 'id'> = {
-        ...data,
+        patient_id: data.patient_id,
+        medecin_id: data.medecin_id,
+        nom_medecin: data.nom_medecin,
+        rendez_vous_id: data.rendez_vous_id,
         date_resultat: Timestamp.fromDate(data.date_resultat),
         date_creation: serverTimestamp() as Timestamp,
         type: 'analyse',
         titre: `${data.nom_analyse} - ${data.date_resultat.toLocaleDateString('fr-FR')}`,
         description: `Résultats de l'analyse ${data.nom_analyse} (${data.type_analyse})`,
-        observations: data.resultats_analyse,
-        statut: 'finalise',
+        notes: data.interpretation || '',
+        statut: 'disponible',
+        donnees: {
+          type_analyse: data.type_analyse,
+          nom_analyse: data.nom_analyse,
+          resultats: data.resultats_analyse,
+          interpretation: data.interpretation || '',
+          recommandations: data.recommandations || ''
+        }
       };
 
       const docRef = await addDoc(collection(db, COLLECTION_NAME), resultat);
@@ -94,15 +113,14 @@ export const resultatsMedicauxService = {
       const q = query(
         collection(db, COLLECTION_NAME),
         where('patient_id', '==', patientId),
-        where('statut', '==', 'finalise'),
         orderBy('date_resultat', 'desc')
       );
 
       const querySnapshot = await getDocs(q);
-      return querySnapshot.docs.map(doc => ({
+      return querySnapshot.docs.map(doc => normalizeResultatMedical({
         id: doc.id,
         ...convertTimestamp(doc.data()),
-      })) as ResultatMedical[];
+      })).filter(resultat => resultat.statut === 'disponible') as ResultatMedical[];
     } catch (error) {
       console.error('Erreur lors de la récupération des résultats du patient:', error);
       throw error;
@@ -123,7 +141,7 @@ export const resultatsMedicauxService = {
       }
 
       const querySnapshot = await getDocs(q);
-      return querySnapshot.docs.map(doc => ({
+      return querySnapshot.docs.map(doc => normalizeResultatMedical({
         id: doc.id,
         ...convertTimestamp(doc.data()),
       })) as ResultatMedical[];
