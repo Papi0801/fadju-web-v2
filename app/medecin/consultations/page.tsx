@@ -620,9 +620,7 @@ const ConsultationsPage: React.FC = () => {
                                     Modifier
                                   </DropdownMenuItem>
                                   <DropdownMenuItem
-                                    onClick={(e) => {
-                                      e.preventDefault();
-                                      e.stopPropagation();
+                                    onClick={() => {
                                       console.log('=== DEBUT DEBUG DOSSIER MEDICAL ===');
                                       console.log('RDV complet:', rdv);
                                       console.log('Patient ID:', rdv.patient_id);
