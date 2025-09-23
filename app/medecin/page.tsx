@@ -22,11 +22,11 @@ const MedecinPage: React.FC = () => {
 
   useEffect(() => {
     const loadStatistiques = async () => {
-      if (!user?.uid) return;
+      if (!user?.id) return;
 
       try {
         // Récupérer tous les RDV du médecin
-        const allRdv = await rendezVousService.getRendezVousByMedecin(user.uid);
+        const allRdv = await rendezVousService.getRendezVousByMedecin(user.id);
         
         // Calculer les RDV d'aujourd'hui
         const today = new Date();
