@@ -53,9 +53,9 @@ const step2Schema = yup.object({
   telephone_etablissement: yup.string().required('Téléphone requis'),
   email_etablissement: yup.string().email('Email invalide').required('Email requis'),
   description: yup.string().required('Description requise'),
-  site_web: yup.string().url('URL invalide').nullable(),
-  service_urgence: yup.boolean(),
-  ouvert_24h: yup.boolean(),
+  site_web: yup.string().url('URL invalide').nullable().optional(),
+  service_urgence: yup.boolean().optional(),
+  ouvert_24h: yup.boolean().optional(),
 });
 
 type Step1Form = yup.InferType<typeof step1Schema>;
