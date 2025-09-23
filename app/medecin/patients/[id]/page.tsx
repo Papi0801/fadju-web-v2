@@ -305,7 +305,7 @@ const PatientDetailPage: React.FC = () => {
                             <h4 className="font-medium text-sm">{resultat.titre}</h4>
                             <p className="text-xs text-muted-foreground">
                               {resultat.type === 'consultation' ? 'Consultation' : 
-                               resultat.type === 'analyse' ? `Analyse - ${resultat.nom_analyse || 'Analyse médicale'}` : 
+                               resultat.type === 'analyse' ? `Analyse - ${resultat.donnees?.nom_analyse || 'Analyse médicale'}` : 
                                resultat.type} • {resultat.nom_medecin}
                             </p>
                             <p className="text-xs text-muted-foreground flex items-center space-x-1 mt-1">
@@ -316,18 +316,18 @@ const PatientDetailPage: React.FC = () => {
                             </p>
                             {/* Aperçu du contenu */}
                             <p className="text-xs text-muted-foreground mt-1 line-clamp-2">
-                              {resultat.diagnostic || 
-                               (resultat.observations && resultat.observations.substring(0, 100) + '...') ||
-                               (resultat.resultats_analyse && resultat.resultats_analyse.substring(0, 100) + '...') ||
-                               'Résultat médical'}
+                              {resultat.donnees?.diagnostic || 
+                               (resultat.donnees?.observations && resultat.donnees.observations.substring(0, 100) + '...') ||
+                               (resultat.donnees?.resultats && resultat.donnees.resultats.substring(0, 100) + '...') ||
+                               resultat.description || 'Résultat médical'}
                             </p>
                           </div>
                           <div className="flex flex-col items-end space-y-1">
                             <Badge 
                               variant="secondary" 
                               className={`text-xs ${
-                                resultat.statut === 'finalise' ? 'bg-green-100 text-green-800' :
-                                resultat.statut === 'brouillon' ? 'bg-yellow-100 text-yellow-800' :
+                                resultat.statut === 'disponible' ? 'bg-green-100 text-green-800' :
+                                resultat.statut === 'en_cours' ? 'bg-yellow-100 text-yellow-800' :
                                 'bg-gray-100 text-gray-800'
                               }`}
                             >
@@ -418,8 +418,8 @@ const PatientDetailPage: React.FC = () => {
                 <Badge 
                   variant="secondary" 
                   className={`text-sm ${
-                    selectedResultat.statut === 'finalise' ? 'bg-green-100 text-green-800' :
-                    selectedResultat.statut === 'brouillon' ? 'bg-yellow-100 text-yellow-800' :
+                    selectedResultat.statut === 'disponible' ? 'bg-green-100 text-green-800' :
+                    selectedResultat.statut === 'en_cours' ? 'bg-yellow-100 text-yellow-800' :
                     'bg-gray-100 text-gray-800'
                   }`}
                 >
@@ -451,7 +451,7 @@ const PatientDetailPage: React.FC = () => {
               <label className="text-sm font-medium text-muted-foreground">Observations du médecin</label>
               <div className="mt-2 p-4 bg-muted/30 rounded-lg">
                 <p className="text-sm whitespace-pre-wrap">
-                  {selectedResultat.observations || 'Aucune observation spécifique pour cette consultation.'}
+                  {selectedResultat.donnees?.observations || selectedResultat.description || 'Aucune observation spécifique pour cette consultation.'}
                 </p>
               </div>
             </div>

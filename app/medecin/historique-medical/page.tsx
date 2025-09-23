@@ -136,7 +136,7 @@ const HistoriqueMedicalPage: React.FC = () => {
       case 'ordonnance':
         return 'secondary';
       default:
-        return 'outline';
+        return 'secondary';
     }
   };
 
@@ -463,7 +463,7 @@ const HistoriqueMedicalPage: React.FC = () => {
 
           <div className="flex justify-end mt-6">
             <Button
-              variant="outline"
+              variant="secondary"
               onClick={() => {
                 setShowDetailModal(false);
                 setSelectedResultat(null);

@@ -68,8 +68,8 @@ const SecretaireDashboardPage: React.FC = () => {
         tomorrow.setDate(tomorrow.getDate() + 1);
 
         const rendezVousAujourdhui = tousLesRdv.filter(rdv => {
-          if (!rdv.date_rdv) return false;
-          const rdvDate = rdv.date_rdv.toDate();
+          if (!rdv.date_rendez_vous) return false;
+          const rdvDate = rdv.date_rendez_vous.toDate();
           return rdvDate >= today && rdvDate < tomorrow;
         }).length;
 

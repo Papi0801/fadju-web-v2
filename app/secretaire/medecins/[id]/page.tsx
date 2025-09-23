@@ -113,14 +113,14 @@ const MedecinDetailPage: React.FC = () => {
     tomorrow.setDate(tomorrow.getDate() + 1);
 
     const todayRdv = rendezVous.filter(rdv => {
-      if (!rdv.date_rdv) return false;
-      const rdvDate = rdv.date_rdv.toDate();
+      if (!rdv.date_rendez_vous) return false;
+      const rdvDate = rdv.date_rendez_vous.toDate();
       return rdvDate >= today && rdvDate < tomorrow;
     });
 
     const weekRdv = rendezVous.filter(rdv => {
-      if (!rdv.date_rdv) return false;
-      const rdvDate = rdv.date_rdv.toDate();
+      if (!rdv.date_rendez_vous) return false;
+      const rdvDate = rdv.date_rendez_vous.toDate();
       const weekFromNow = new Date(today);
       weekFromNow.setDate(weekFromNow.getDate() + 7);
       return rdvDate >= today && rdvDate < weekFromNow;
@@ -192,7 +192,7 @@ const MedecinDetailPage: React.FC = () => {
               {medecin.actif ? 'Actif' : 'Inactif'}
             </Badge>
             <Button
-              variant="outline"
+              variant="secondary"
               onClick={() => router.push(`/secretaire/medecins/${medecin.id}/edit`)}
             >
               <Edit className="w-4 h-4 mr-2" />
@@ -274,7 +274,7 @@ const MedecinDetailPage: React.FC = () => {
             </CardHeader>
             <CardContent className="space-y-3">
               <Button
-                variant="outline"
+                variant="secondary"
                 className="w-full justify-start"
                 onClick={() => router.push(`/secretaire/medecins/${medecin.id}/edit`)}
               >
@@ -388,7 +388,7 @@ const MedecinDetailPage: React.FC = () => {
           const rendezVousTermines = rendezVous.filter(rdv => 
             rdv.statut === 'termine' || rdv.statut === 'terminee'
           ).sort((a, b) => 
-            (b.date_rdv?.toDate().getTime() || 0) - (a.date_rdv?.toDate().getTime() || 0)
+            (b.date_rendez_vous?.toDate().getTime() || 0) - (a.date_rendez_vous?.toDate().getTime() || 0)
           );
           
           return (
@@ -405,7 +405,7 @@ const MedecinDetailPage: React.FC = () => {
                           <div className="w-2 h-2 rounded-full bg-green-500" />
                           <div>
                             <p className="font-medium">
-                              {rdv.date_rdv?.toDate().toLocaleDateString('fr-FR', {
+                              {rdv.date_rendez_vous?.toDate().toLocaleDateString('fr-FR', {
                                 weekday: 'long',
                                 year: 'numeric',
                                 month: 'long',

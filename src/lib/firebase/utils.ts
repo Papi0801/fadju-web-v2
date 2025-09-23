@@ -99,3 +99,96 @@ export function isTimestamp(value: any): value is Timestamp {
   return value instanceof Timestamp || 
          (value && typeof value === 'object' && value.toDate && typeof value.toDate === 'function');
 }
+
+/**
+ * Normalise un rendez-vous pour assurer la compatibilité entre les anciens et nouveaux formats
+ */
+export function normalizeRendezVous(rdv: any): any {
+  if (!rdv) return rdv;
+  
+  const normalized = { ...rdv };
+  
+  // Conversion date_rdv vers date_rendez_vous si nécessaire
+  if (rdv.date_rdv && !rdv.date_rendez_vous) {
+    normalized.date_rendez_vous = rdv.date_rdv;
+  }
+  
+  // Conversion des statuts anciens vers nouveaux
+  if (rdv.statut === 'confirme') {
+    normalized.statut = 'confirmee';
+  } else if (rdv.statut === 'termine') {
+    normalized.statut = 'terminee';
+  }
+  
+  // Ajouter l'heure par défaut si manquante
+  if (!rdv.heure_debut && rdv.date_rendez_vous) {
+    normalized.heure_debut = '09:00';
+  }
+  if (!rdv.heure_fin && rdv.date_rendez_vous) {
+    normalized.heure_fin = '10:00';
+  }
+  
+  return normalized;
+}
+
+/**
+ * Normalise un résultat médical pour assurer la compatibilité entre les anciens et nouveaux formats
+ */
+export function normalizeResultatMedical(resultat: any): any {
+  if (!resultat) return resultat;
+  
+  const normalized = { ...resultat };
+  
+  // Conversion date_consultation vers date_resultat si nécessaire
+  if (resultat.date_consultation && !resultat.date_resultat) {
+    normalized.date_resultat = resultat.date_consultation;
+  }
+  
+  // Assurer que date_resultat existe toujours
+  if (!normalized.date_resultat) {
+    normalized.date_resultat = resultat.date_creation || Timestamp.now();
+  }
+  
+  // Conversion des statuts anciens vers nouveaux
+  if (resultat.statut === 'finalise') {
+    normalized.statut = 'disponible';
+  } else if (resultat.statut === 'brouillon') {
+    normalized.statut = 'en_cours';
+  }
+  
+  // Assurer que le statut est valide
+  if (!['en_cours', 'disponible', 'archive'].includes(normalized.statut)) {
+    normalized.statut = 'disponible';
+  }
+  
+  // Restructurer les données dans l'objet donnees si nécessaire
+  if (!resultat.donnees || typeof resultat.donnees !== 'object') {
+    normalized.donnees = {};
+  }
+  
+  // Migrer les propriétés vers donnees
+  const propsToMigrate = ['observations', 'diagnostic', 'ordonnance', 'analyses_demandees', 
+                         'nom_analyse', 'type_analyse', 'resultats_analyse', 'interpretation', 
+                         'recommandations', 'resultats', 'analyses'];
+  
+  propsToMigrate.forEach(prop => {
+    if (resultat[prop] && !normalized.donnees[prop]) {
+      normalized.donnees[prop] = resultat[prop];
+    }
+  });
+  
+  // Assurer les propriétés requises
+  if (!normalized.titre) {
+    normalized.titre = resultat.nom_analyse || resultat.type || 'Résultat médical';
+  }
+  
+  if (!normalized.description) {
+    normalized.description = resultat.observations || resultat.diagnostic || 'Résultat médical';
+  }
+  
+  if (!normalized.notes) {
+    normalized.notes = resultat.notes || '';
+  }
+  
+  return normalized;
+}

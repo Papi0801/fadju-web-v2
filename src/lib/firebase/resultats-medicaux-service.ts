@@ -14,46 +14,32 @@ import {
   Timestamp,
 } from 'firebase/firestore';
 import { db } from './config';
-import { convertTimestamp } from './utils';
+import { convertTimestamp, normalizeResultatMedical } from './utils';
 
 const COLLECTION_NAME = 'resultats_medicaux';
 
+// Interface ResultatMedical pour compatibilité
 export interface ResultatMedical {
   id: string;
-  patient_id: string;
+  date_consultation?: Timestamp | null;
+  date_creation: Timestamp;
+  date_resultat: Timestamp;
+  description: string;
+  donnees: {
+    [key: string]: string;
+  };
+  fichiers_joints?: {
+    id: string;
+    [key: string]: any;
+  };
   medecin_id: string;
   nom_medecin: string;
+  notes: string;
+  patient_id: string;
   rendez_vous_id: string;
-  date_consultation: Timestamp;
-  date_creation: Timestamp;
-  
-  // Type de résultat
-  type: 'consultation' | 'analyse' | 'ordonnance' | 'suivi';
+  statut: 'en_cours' | 'disponible' | 'archive';
   titre: string;
-  description: string;
-  
-  // Données de consultation
-  observations?: string;
-  diagnostic?: string;
-  traitement_prescrit?: string;
-  ordonnance?: string;
-  analyses_demandees?: string;
-  
-  // Données d'analyse (si type = 'analyse')
-  type_analyse?: string; // "Sanguin", "Urinaire", etc.
-  nom_analyse?: string; // "NFS", "Glycémie", etc.
-  resultats_analyse?: string;
-  valeurs_normales?: string;
-  interpretation?: string;
-  
-  // Métadonnées
-  statut: 'brouillon' | 'finalise' | 'transmis';
-  notes?: string;
-  recommandations?: string;
-  
-  // Données techniques (pour compatibilité)
-  donnees?: Record<string, any>;
-  fichiers_joints?: Record<string, any>;
+  type: 'analyse' | 'radiologie' | 'consultation';
 }
 
 export const resultatsMedicauxService = {
@@ -138,7 +124,7 @@ export const resultatsMedicauxService = {
       const querySnapshot = await getDocs(q);
       return querySnapshot.docs.map(doc => ({
         id: doc.id,
-        ...convertTimestamp(doc.data()),
+        ...convertTimestamp(normalizeResultatMedical(doc.data())),
       })) as ResultatMedical[];
     } catch (error) {
       console.error('Erreur lors de la récupération des résultats du patient:', error);
@@ -162,7 +148,7 @@ export const resultatsMedicauxService = {
       const querySnapshot = await getDocs(q);
       return querySnapshot.docs.map(doc => ({
         id: doc.id,
-        ...convertTimestamp(doc.data()),
+        ...convertTimestamp(normalizeResultatMedical(doc.data())),
       })) as ResultatMedical[];
     } catch (error) {
       console.error('Erreur lors de la récupération des résultats du médecin:', error);
