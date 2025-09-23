@@ -136,6 +136,8 @@ const HistoriqueMedicalPage: React.FC = () => {
         return 'success';
       case 'ordonnance':
         return 'secondary';
+      case 'radiologie':
+        return 'warning';
       default:
         return 'default';
     }
@@ -308,7 +310,8 @@ const HistoriqueMedicalPage: React.FC = () => {
                             <Badge variant={getTypeBadgeVariant(resultat.type)}>
                               {resultat.type === 'consultation' ? 'Consultation' :
                                resultat.type === 'analyse' ? 'Analyse' :
-                               resultat.type === 'ordonnance' ? 'Ordonnance' : resultat.type}
+                               resultat.type === 'ordonnance' ? 'Ordonnance' :
+                               resultat.type === 'radiologie' ? 'Radiologie' : resultat.type}
                             </Badge>
                           </div>
                           

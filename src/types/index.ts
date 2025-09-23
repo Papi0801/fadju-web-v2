@@ -117,7 +117,7 @@ export interface ResultatMedical {
   rendez_vous_id: string;
   statut: 'en_cours' | 'disponible' | 'archive';
   titre: string;
-  type: 'analyse' | 'radiologie' | 'consultation';
+  type: 'analyse' | 'radiologie' | 'consultation' | 'ordonnance';
 }
 
 // Contacts d'urgence
