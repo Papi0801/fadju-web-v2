@@ -82,14 +82,14 @@ const MedecinDashboardPage: React.FC = () => {
       const consultationsAujourdhui = rdvList.filter(rdv => {
         if (!rdv.date_rendez_vous) return false;
         const rdvDate = rdv.date_rendez_vous.toDate();
-        return rdvDate >= today && rdvDate < tomorrow && (rdv.statut === 'confirmee' || rdv.statut === 'confirme');
+        return rdvDate >= today && rdvDate < tomorrow && ((rdv.statut as any) === 'confirmee' || (rdv.statut as any) === 'confirme');
       }).length;
 
-      const patientsVus = rdvList.filter(rdv => rdv.statut === 'terminee' || rdv.statut === 'termine').length;
+      const patientsVus = rdvList.filter(rdv => (rdv.statut as any) === 'terminee' || (rdv.statut as any) === 'termine').length;
 
       // Prochain RDV (le plus proche dans le futur)
       const futureRdv = rdvList
-        .filter(rdv => rdv.date_rendez_vous && rdv.date_rendez_vous.toDate() > new Date() && (rdv.statut === 'confirmee' || rdv.statut === 'confirme'))
+        .filter(rdv => rdv.date_rendez_vous && rdv.date_rendez_vous.toDate() > new Date() && ((rdv.statut as any) === 'confirmee' || (rdv.statut as any) === 'confirme'))
         .sort((a, b) => a.date_rendez_vous.toDate().getTime() - b.date_rendez_vous.toDate().getTime());
       
       const prochainRdv = futureRdv.length > 0 ? futureRdv[0] : null;
@@ -120,7 +120,7 @@ const MedecinDashboardPage: React.FC = () => {
   const getNextAppointments = () => {
     const today = new Date();
     return rendezVous
-      .filter(rdv => rdv.date_rendez_vous && rdv.date_rendez_vous.toDate() > today && (rdv.statut === 'confirmee' || rdv.statut === 'confirme'))
+      .filter(rdv => rdv.date_rendez_vous && rdv.date_rendez_vous.toDate() > today && ((rdv.statut as any) === 'confirmee' || (rdv.statut as any) === 'confirme'))
       .sort((a, b) => a.date_rendez_vous.toDate().getTime() - b.date_rendez_vous.toDate().getTime())
       .slice(0, 3);
   };

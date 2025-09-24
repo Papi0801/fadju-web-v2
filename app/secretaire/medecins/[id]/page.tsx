@@ -130,7 +130,7 @@ const MedecinDetailPage: React.FC = () => {
       total: rendezVous.length,
       today: todayRdv.length,
       thisWeek: weekRdv.length,
-      terminated: rendezVous.filter(rdv => rdv.statut === 'terminee' || rdv.statut === 'termine').length,
+      terminated: rendezVous.filter(rdv => (rdv.statut as any) === 'terminee' || (rdv.statut as any) === 'termine').length,
     };
   };
 
@@ -386,7 +386,7 @@ const MedecinDetailPage: React.FC = () => {
         {/* Derniers rendez-vous terminés */}
         {(() => {
           const rendezVousTermines = rendezVous.filter(rdv => 
-            rdv.statut === 'termine' || rdv.statut === 'terminee'
+            (rdv.statut as any) === 'termine' || (rdv.statut as any) === 'terminee'
           ).sort((a, b) => 
             (b.date_rendez_vous?.toDate().getTime() || 0) - (a.date_rendez_vous?.toDate().getTime() || 0)
           );
