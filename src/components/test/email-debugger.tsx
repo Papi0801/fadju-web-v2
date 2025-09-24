@@ -214,7 +214,7 @@ export const EmailDebugger: React.FC = () => {
             {Object.entries(configStatus.details).map(([key, value]) => (
               <div key={key} className="flex items-center justify-between text-sm">
                 <span className="text-muted-foreground capitalize">{key}:</span>
-                <span className="font-mono">{value}</span>
+                <span className="font-mono">{String(value)}</span>
               </div>
             ))}
 
