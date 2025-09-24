@@ -473,14 +473,14 @@ const PatientDetailPage: React.FC = () => {
             </div>
 
             {/* Ordonnance prescrite */}
-            {selectedResultat.ordonnance && (
+            {(selectedResultat as any).ordonnance && (
               <div>
                 <label className="text-sm font-medium text-muted-foreground">Ordonnance prescrite</label>
                 <div className="mt-2 p-4 bg-blue-50 dark:bg-blue-900/20 rounded-lg border border-blue-200">
                   <div className="flex items-start space-x-2">
                     <Pill className="w-5 h-5 text-blue-600 mt-0.5" />
                     <p className="text-sm whitespace-pre-wrap text-blue-800 dark:text-blue-200">
-                      {selectedResultat.ordonnance}
+                      {(selectedResultat as any).ordonnance}
                     </p>
                   </div>
                 </div>
@@ -488,14 +488,14 @@ const PatientDetailPage: React.FC = () => {
             )}
 
             {/* Analyses demandées */}
-            {selectedResultat.analyses_demandees && (
+            {(selectedResultat as any).analyses_demandees && (
               <div>
                 <label className="text-sm font-medium text-muted-foreground">Analyses demandées</label>
                 <div className="mt-2 p-4 bg-amber-50 dark:bg-amber-900/20 rounded-lg border border-amber-200">
                   <div className="flex items-start space-x-2">
                     <FileText className="w-5 h-5 text-amber-600 mt-0.5" />
                     <p className="text-sm whitespace-pre-wrap text-amber-800 dark:text-amber-200">
-                      {selectedResultat.analyses_demandees}
+                      {(selectedResultat as any).analyses_demandees}
                     </p>
                   </div>
                 </div>
@@ -503,24 +503,24 @@ const PatientDetailPage: React.FC = () => {
             )}
 
             {/* Diagnostic (si disponible) */}
-            {selectedResultat.diagnostic && (
+            {(selectedResultat as any).diagnostic && (
               <div>
                 <label className="text-sm font-medium text-muted-foreground">Diagnostic</label>
                 <div className="mt-2 p-4 bg-green-50 dark:bg-green-900/20 rounded-lg border border-green-200">
                   <p className="text-sm text-green-800 dark:text-green-200 font-medium">
-                    {selectedResultat.diagnostic}
+                    {(selectedResultat as any).diagnostic}
                   </p>
                 </div>
               </div>
             )}
 
             {/* Recommandations */}
-            {selectedResultat.recommandations && (
+            {(selectedResultat as any).recommandations && (
               <div>
                 <label className="text-sm font-medium text-muted-foreground">Recommandations</label>
                 <div className="mt-2 p-4 bg-purple-50 dark:bg-purple-900/20 rounded-lg border border-purple-200">
                   <p className="text-sm text-purple-800 dark:text-purple-200">
-                    {selectedResultat.recommandations}
+                    {(selectedResultat as any).recommandations}
                   </p>
                 </div>
               </div>
@@ -531,36 +531,36 @@ const PatientDetailPage: React.FC = () => {
               <div>
                 <label className="text-sm font-medium text-muted-foreground">Résultats de l'analyse</label>
                 <div className="mt-2 space-y-3">
-                  {selectedResultat.type_analyse && (
+                  {(selectedResultat as any).type_analyse && (
                     <div className="p-3 bg-muted/20 rounded-lg">
                       <label className="text-xs font-medium text-muted-foreground uppercase tracking-wider">
                         Type d'analyse
                       </label>
-                      <p className="text-sm font-semibold mt-1">{selectedResultat.type_analyse}</p>
+                      <p className="text-sm font-semibold mt-1">{(selectedResultat as any).type_analyse}</p>
                     </div>
                   )}
-                  {selectedResultat.nom_analyse && (
+                  {(selectedResultat as any).nom_analyse && (
                     <div className="p-3 bg-muted/20 rounded-lg">
                       <label className="text-xs font-medium text-muted-foreground uppercase tracking-wider">
                         Nom de l'analyse
                       </label>
-                      <p className="text-sm font-semibold mt-1">{selectedResultat.nom_analyse}</p>
+                      <p className="text-sm font-semibold mt-1">{(selectedResultat as any).nom_analyse}</p>
                     </div>
                   )}
-                  {selectedResultat.resultats_analyse && (
+                  {(selectedResultat as any).resultats_analyse && (
                     <div className="p-3 bg-muted/20 rounded-lg">
                       <label className="text-xs font-medium text-muted-foreground uppercase tracking-wider">
                         Résultats
                       </label>
-                      <p className="text-sm mt-1 whitespace-pre-wrap">{selectedResultat.resultats_analyse}</p>
+                      <p className="text-sm mt-1 whitespace-pre-wrap">{(selectedResultat as any).resultats_analyse}</p>
                     </div>
                   )}
-                  {selectedResultat.interpretation && (
+                  {(selectedResultat as any).interpretation && (
                     <div className="p-3 bg-muted/20 rounded-lg">
                       <label className="text-xs font-medium text-muted-foreground uppercase tracking-wider">
                         Interprétation
                       </label>
-                      <p className="text-sm mt-1">{selectedResultat.interpretation}</p>
+                      <p className="text-sm mt-1">{(selectedResultat as any).interpretation}</p>
                     </div>
                   )}
                 </div>
