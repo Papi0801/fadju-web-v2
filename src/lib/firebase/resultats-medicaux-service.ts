@@ -221,6 +221,7 @@ export const resultatsMedicauxService = {
         consultations: resultats.filter(r => r.type === 'consultation').length,
         analyses: resultats.filter(r => r.type === 'analyse').length,
         ce_mois: resultats.filter(r => {
+          if (!r.date_consultation) return false;
           const resultDate = r.date_consultation.toDate();
           return resultDate >= startOfMonth;
         }).length,

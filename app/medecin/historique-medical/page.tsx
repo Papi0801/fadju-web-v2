@@ -150,6 +150,7 @@ const HistoriqueMedicalPage: React.FC = () => {
     consultations: resultats.filter(r => r.type === 'consultation').length,
     analyses: resultats.filter(r => r.type === 'analyse').length,
     ce_mois: resultats.filter(r => {
+      if (!r.date_consultation) return false;
       const resultDate = r.date_consultation.toDate();
       const now = new Date();
       const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
@@ -320,13 +321,13 @@ const HistoriqueMedicalPage: React.FC = () => {
                               <div className="flex items-center space-x-1">
                                 <Calendar className="w-4 h-4" />
                                 <span>
-                                  {format(resultat.date_consultation.toDate(), 'dd MMMM yyyy', { locale: fr })}
+                                  {resultat.date_consultation ? format(resultat.date_consultation.toDate(), 'dd MMMM yyyy', { locale: fr }) : 'Date non disponible'}
                                 </span>
                               </div>
                               <div className="flex items-center space-x-1">
                                 <Clock className="w-4 h-4" />
                                 <span>
-                                  {format(resultat.date_consultation.toDate(), 'HH:mm')}
+                                  {resultat.date_consultation ? format(resultat.date_consultation.toDate(), 'HH:mm') : 'Heure non disponible'}
                                 </span>
                               </div>
                             </div>
@@ -380,7 +381,7 @@ const HistoriqueMedicalPage: React.FC = () => {
                 <div className="flex items-center space-x-4 text-sm text-muted-foreground">
                   <span>Patient: {getPatientName(selectedResultat.patient_id)}</span>
                   <span>
-                    Date: {format(selectedResultat.date_consultation.toDate(), 'dd MMMM yyyy à HH:mm', { locale: fr })}
+                    Date: {selectedResultat.date_consultation ? format(selectedResultat.date_consultation.toDate(), 'dd MMMM yyyy à HH:mm', { locale: fr }) : 'Date non disponible'}
                   </span>
                 </div>
               </div>

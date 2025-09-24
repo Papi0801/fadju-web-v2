@@ -306,7 +306,7 @@ const MedecinPatientsPage: React.FC = () => {
                             {patient.prenom} {patient.nom}
                           </h3>
                           <Badge variant="secondary">
-                            {getPatientAge(patient.date_naissance.toDate())} ans • {patient.genre}
+                            {patient.date_naissance ? getPatientAge(patient.date_naissance.toDate()) : '?'} ans • {patient.genre}
                           </Badge>
                           {patient.groupe_sanguin && (
                             <Badge variant="secondary" className="text-red-600 border-red-200">
