@@ -216,7 +216,7 @@ const ValidationPage: React.FC = () => {
                     {/* Actions */}
                     <div className="flex items-center justify-between">
                       <Button
-                        variant="outline"
+                        variant="secondary"
                         onClick={() => openDetailModal(etablissement)}
                         className="flex items-center space-x-2"
                       >

@@ -145,7 +145,7 @@ const ConfirmationModal: React.FC<ConfirmationModalProps> = ({ rdv, isOpen, onCl
         </div>
 
         <DialogFooter>
-          <Button variant="outline" onClick={onClose} disabled={loading}>
+          <Button variant="secondary" onClick={onClose} disabled={loading}>
             Annuler
           </Button>
           <Button onClick={handleConfirm} loading={loading}>
@@ -243,7 +243,7 @@ const ReportModal: React.FC<ReportModalProps> = ({ rdv, isOpen, onClose, onRepor
         </div>
 
         <DialogFooter>
-          <Button variant="outline" onClick={onClose} disabled={loading}>
+          <Button variant="secondary" onClick={onClose} disabled={loading}>
             Annuler
           </Button>
           <Button onClick={handleReport} loading={loading}>
@@ -319,7 +319,7 @@ const ReassignModal: React.FC<ReassignModalProps> = ({ rdv, isOpen, onClose, med
         </div>
 
         <DialogFooter>
-          <Button variant="outline" onClick={onClose} disabled={loading}>
+          <Button variant="secondary" onClick={onClose} disabled={loading}>
             Annuler
           </Button>
           <Button onClick={handleReassign} loading={loading}>
@@ -611,7 +611,7 @@ const DemandesRendezVousPage: React.FC = () => {
           </div>
           <div className="flex space-x-3">
             <Button
-              variant="outline"
+              variant="secondary"
               onClick={() => router.push('/secretaire/rendez-vous')}
               className="flex items-center space-x-2"
             >
@@ -824,11 +824,11 @@ const DemandesRendezVousPage: React.FC = () => {
 
                                 {/* Type et spécialité */}
                                 <div className="flex items-center space-x-4 text-sm text-muted-foreground mb-3">
-                                  <Badge variant="outline" className="text-xs">
+                                  <Badge variant="secondary" className="text-xs">
                                     {rdv.type}
                                   </Badge>
                                   {rdv.specialite && (
-                                    <Badge variant="outline" className="text-xs">
+                                    <Badge variant="secondary" className="text-xs">
                                       {rdv.specialite}
                                     </Badge>
                                   )}
@@ -876,7 +876,7 @@ const DemandesRendezVousPage: React.FC = () => {
                                       Confirmer & Attribuer
                                     </Button>
                                     <Button
-                                      variant="outline"
+                                      variant="secondary"
                                       size="sm"
                                       onClick={() => setReportModal({isOpen: true, rdv})}
                                     >
@@ -889,7 +889,7 @@ const DemandesRendezVousPage: React.FC = () => {
                                 {rdv.statut === 'confirmee' && (
                                   <>
                                     <Button
-                                      variant="outline"
+                                      variant="secondary"
                                       size="sm"
                                       onClick={() => setReassignModal({isOpen: true, rdv})}
                                     >
@@ -897,7 +897,7 @@ const DemandesRendezVousPage: React.FC = () => {
                                       Réattribuer
                                     </Button>
                                     <Button
-                                      variant="outline"
+                                      variant="secondary"
                                       size="sm"
                                       onClick={() => setReportModal({isOpen: true, rdv})}
                                     >
@@ -909,7 +909,7 @@ const DemandesRendezVousPage: React.FC = () => {
 
                                 {(rdv.statut === 'en_attente' || rdv.statut === 'confirmee') && (
                                   <Button
-                                    variant="outline"
+                                    variant="secondary"
                                     size="sm"
                                     onClick={() => handleAnnulation(rdv.id, 'Annulé par le secrétaire')}
                                     className="text-red-600 hover:text-red-700"

@@ -277,7 +277,7 @@ const MedecinDashboardPage: React.FC = () => {
                   </div>
                 </div>
                 <Button
-                  variant="outline"
+                  variant="secondary"
                   onClick={() => router.push('/medecin/consultations')}
                 >
                   Voir détails
@@ -296,7 +296,7 @@ const MedecinDashboardPage: React.FC = () => {
             </CardHeader>
             <CardContent className="space-y-4">
               <Button
-                variant="outline"
+                variant="secondary"
                 onClick={() => router.push('/medecin/consultations')}
                 className="w-full justify-between"
               >
@@ -308,7 +308,7 @@ const MedecinDashboardPage: React.FC = () => {
               </Button>
               
               <Button
-                variant="outline"
+                variant="secondary"
                 onClick={() => router.push('/medecin/patients')}
                 className="w-full justify-between"
               >
@@ -320,7 +320,7 @@ const MedecinDashboardPage: React.FC = () => {
               </Button>
               
               <Button
-                variant="outline"
+                variant="secondary"
                 onClick={() => router.push('/medecin/profil')}
                 className="w-full justify-between"
               >

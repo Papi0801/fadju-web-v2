@@ -221,7 +221,7 @@ const SharedLoginPage: React.FC = () => {
                 <div className="space-y-3">
                   <Button
                     type="button"
-                    variant="outline"
+                    variant="secondary"
                     className="w-full"
                     onClick={() => router.push('/health-secretary/register')}
                   >

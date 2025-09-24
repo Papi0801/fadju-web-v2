@@ -80,7 +80,7 @@ const HealthSecretaryHomePage: React.FC = () => {
             <div className="flex items-center space-x-4">
               <ConditionalThemeToggle />
               <Button
-                variant="outline"
+                variant="secondary"
                 onClick={() => router.push('/auth/login')}
               >
                 Se connecter
@@ -126,7 +126,7 @@ const HealthSecretaryHomePage: React.FC = () => {
               </Button>
               <Button
                 size="lg"
-                variant="outline"
+                variant="secondary"
                 onClick={() => router.push('/auth/login')}
               >
                 J'ai déjà un compte

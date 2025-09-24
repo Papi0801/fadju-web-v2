@@ -293,7 +293,7 @@ const EtablissementsPage: React.FC = () => {
 
                       <div className="flex items-center space-x-2">
                         <Button
-                          variant="outline"
+                          variant="secondary"
                           size="sm"
                           onClick={() => openDetailModal(etablissement)}
                         >

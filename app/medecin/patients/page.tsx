@@ -168,7 +168,7 @@ const MedecinPatientsPage: React.FC = () => {
           </div>
           <Button
             onClick={() => fetchPatients()}
-            variant="outline"
+            variant="secondary"
             className="flex items-center space-x-2"
           >
             <RefreshCw className="w-4 h-4" />
@@ -345,7 +345,7 @@ const MedecinPatientsPage: React.FC = () => {
                       </div>
                     </div>
                     <Button
-                      variant="outline"
+                      variant="secondary"
                       onClick={() => router.push(`/medecin/patients/${patient.patient_id}`)}
                       className="flex items-center space-x-2"
                     >
@@ -369,7 +369,7 @@ const MedecinPatientsPage: React.FC = () => {
                 </p>
                 {(searchTerm || filter !== 'tous') && (
                   <Button
-                    variant="outline"
+                    variant="secondary"
                     onClick={() => {
                       setSearchTerm('');
                       setFilter('tous');

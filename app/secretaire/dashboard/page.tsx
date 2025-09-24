@@ -171,7 +171,7 @@ const SecretaireDashboardPage: React.FC = () => {
           </div>
           {/* Bouton temporaire de migration/nettoyage */}
           <Button
-            variant="outline"
+            variant="secondary"
             onClick={handleNettoyageRdv}
             className="bg-blue-50 border-blue-300 text-blue-800 hover:bg-blue-100"
           >
@@ -238,7 +238,7 @@ const SecretaireDashboardPage: React.FC = () => {
                         <AlertCircle className="w-3 h-3" />
                         <span>Refusé</span>
                       </Badge>
-                      <Button variant="outline" size="sm">
+                      <Button variant="secondary" size="sm">
                         Contacter le support
                       </Button>
                     </div>
@@ -434,7 +434,7 @@ const SecretaireDashboardPage: React.FC = () => {
                 Consultez et modifiez les informations de votre établissement.
               </p>
               <Button
-                variant="outline"
+                variant="secondary"
                 onClick={() => router.push('/secretaire/etablissement')}
                 className="w-full"
               >
@@ -547,7 +547,7 @@ const SecretaireDashboardPage: React.FC = () => {
                 Gérez vos informations personnelles et paramètres de sécurité.
               </p>
               <Button
-                variant="outline"
+                variant="secondary"
                 onClick={() => router.push('/secretaire/profil')}
                 className="w-full"
               >
@@ -568,7 +568,7 @@ const SecretaireDashboardPage: React.FC = () => {
                 Consultez la documentation pour utiliser efficacement la plateforme.
               </p>
               <Button
-                variant="outline"
+                variant="secondary"
                 className="w-full"
                 disabled
               >
