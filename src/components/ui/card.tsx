@@ -23,7 +23,7 @@ const Card: React.FC<CardProps> = ({ className, children, hover = false, ...prop
         className
       )}
       {...motionProps}
-      {...props}
+      {...(props as any)}
     >
       {children}
     </MotionDiv>

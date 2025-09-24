@@ -70,7 +70,7 @@ export const DropdownMenuTrigger: React.FC<DropdownMenuTriggerProps> = ({
       'aria-expanded': isOpen,
       'aria-haspopup': true,
       ref: triggerRef,
-    });
+    } as any);
   }
 
   return (

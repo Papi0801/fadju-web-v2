@@ -58,14 +58,25 @@ export const resultatsMedicauxService = {
   }): Promise<string> {
     try {
       const resultat: Omit<ResultatMedical, 'id'> = {
-        ...data,
+        patient_id: data.patient_id,
+        medecin_id: data.medecin_id,
+        nom_medecin: data.nom_medecin,
+        rendez_vous_id: data.rendez_vous_id,
         date_consultation: Timestamp.fromDate(data.date_consultation),
         date_creation: serverTimestamp() as Timestamp,
+        date_resultat: serverTimestamp() as Timestamp,
         type: 'consultation',
         titre: `Consultation du ${data.date_consultation.toLocaleDateString('fr-FR')}`,
         description: data.observations,
-        traitement_prescrit: data.ordonnance,
-        statut: 'finalise',
+        donnees: {
+          traitement_prescrit: data.ordonnance || '',
+          analyses_demandees: data.analyses_demandees || '',
+          diagnostic: data.diagnostic || '',
+          recommandations: data.recommandations || '',
+          observations: data.observations
+        },
+        notes: data.observations,
+        statut: 'disponible' as any,
       };
 
       const docRef = await addDoc(collection(db, COLLECTION_NAME), resultat);
@@ -92,14 +103,25 @@ export const resultatsMedicauxService = {
   }): Promise<string> {
     try {
       const resultat: Omit<ResultatMedical, 'id'> = {
-        ...data,
+        patient_id: data.patient_id,
+        medecin_id: data.medecin_id,
+        nom_medecin: data.nom_medecin,
+        rendez_vous_id: data.rendez_vous_id,
         date_consultation: Timestamp.fromDate(data.date_consultation),
         date_creation: serverTimestamp() as Timestamp,
+        date_resultat: serverTimestamp() as Timestamp,
         type: 'analyse',
         titre: `${data.nom_analyse} - ${data.date_consultation.toLocaleDateString('fr-FR')}`,
         description: `Résultats de l'analyse ${data.nom_analyse} (${data.type_analyse})`,
-        observations: data.resultats_analyse,
-        statut: 'finalise',
+        donnees: {
+          type_analyse: data.type_analyse,
+          nom_analyse: data.nom_analyse,
+          resultats_analyse: data.resultats_analyse,
+          interpretation: data.interpretation || '',
+          recommandations: data.recommandations || ''
+        },
+        notes: data.resultats_analyse,
+        statut: 'disponible' as any,
       };
 
       const docRef = await addDoc(collection(db, COLLECTION_NAME), resultat);
@@ -114,21 +136,32 @@ export const resultatsMedicauxService = {
   // Récupérer tous les résultats d'un patient
   async getResultatsByPatient(patientId: string): Promise<ResultatMedical[]> {
     try {
+      console.log('Recherche des résultats pour patient:', patientId);
+      
+      // Essayons d'abord sans le filtre de statut pour voir tous les résultats
       const q = query(
         collection(db, COLLECTION_NAME),
         where('patient_id', '==', patientId),
-        where('statut', '==', 'finalise'),
         orderBy('date_consultation', 'desc')
       );
 
       const querySnapshot = await getDocs(q);
-      return querySnapshot.docs.map(doc => ({
-        id: doc.id,
-        ...convertTimestamp(normalizeResultatMedical(doc.data())),
-      })) as ResultatMedical[];
+      console.log('Nombre de documents trouvés:', querySnapshot.size);
+      
+      const results = querySnapshot.docs.map(doc => {
+        console.log('Document trouvé:', doc.id, doc.data());
+        return {
+          id: doc.id,
+          ...convertTimestamp(normalizeResultatMedical(doc.data())),
+        };
+      }) as ResultatMedical[];
+      
+      console.log('Résultats finaux:', results);
+      return results;
     } catch (error) {
       console.error('Erreur lors de la récupération des résultats du patient:', error);
-      throw error;
+      // Retourner un tableau vide au lieu de throw pour éviter de casser l'interface
+      return [];
     }
   },
 

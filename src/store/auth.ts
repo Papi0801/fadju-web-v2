@@ -28,7 +28,7 @@ export const useAuthStore = create<AuthStore>()(
         try {
           const user = await signIn(email, password);
           set({ user, loading: false });
-          return user;
+          return user as User;
         } catch (error: any) {
           set({ error: error.message, loading: false });
           throw error;

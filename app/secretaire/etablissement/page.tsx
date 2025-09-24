@@ -22,12 +22,12 @@ import toast from 'react-hot-toast';
 
 import { useAuthStore, useThemeStore } from '@/store';
 import { DashboardLayout } from '@/components/layout';
-import { 
-  Card, 
-  CardContent, 
-  CardHeader, 
-  CardTitle, 
-  Button, 
+import {
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+  Button,
   Input,
   Badge,
   Loading,
@@ -44,7 +44,7 @@ const EtablissementPage: React.FC = () => {
   const [loading, setLoading] = useState(true);
   const [editing, setEditing] = useState(false);
   const [saving, setSaving] = useState(false);
-  
+
   // États pour l'édition
   const [formData, setFormData] = useState({
     adresse: '',
@@ -103,7 +103,7 @@ const EtablissementPage: React.FC = () => {
         ...formData,
         site_web: formData.site_web || undefined,
       });
-      
+
       toast.success('Informations mises à jour avec succès');
       setEditing(false);
       fetchEtablissement();
@@ -219,7 +219,7 @@ const EtablissementPage: React.FC = () => {
 
         {/* Message pour établissement en attente */}
         {etablissement.statut_validation === 'en_attente' && (
-          <Card 
+          <Card
             className={`border-yellow-200 bg-yellow-50 dark:bg-yellow-900/20 ${theme === 'light' ? 'info-box-light' : ''}`}
           >
             <CardContent className="p-6">
@@ -255,7 +255,7 @@ const EtablissementPage: React.FC = () => {
                 </label>
                 <p className="text-foreground font-medium">{etablissement.nom}</p>
               </div>
-              
+
               <div>
                 <label className="block text-sm font-medium text-muted-foreground mb-1">
                   Type d'établissement
@@ -360,7 +360,7 @@ const EtablissementPage: React.FC = () => {
                       </label>
                       <p className="text-foreground flex items-center">
                         <Globe className="w-4 h-4 mr-2 text-muted-foreground" />
-                        <a href={etablissement.site_web} target="_blank" rel="noopener noreferrer" 
+                        <a href={etablissement.site_web} target="_blank" rel="noopener noreferrer"
                            className="text-primary hover:underline">
                           {etablissement.site_web}
                         </a>
@@ -556,7 +556,7 @@ const EtablissementPage: React.FC = () => {
                 </span>
               </div>
               {etablissement.statut_validation === 'valide' && (
-                <Badge variant="outline" className="text-xs">
+                <Badge variant="secondary" className="text-xs">
                   Visible sur l'application mobile
                 </Badge>
               )}

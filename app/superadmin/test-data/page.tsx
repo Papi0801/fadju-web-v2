@@ -103,10 +103,10 @@ const TestDataPage: React.FC = () => {
       for (const patient of testPatients) {
         // Vérifier si le patient existe déjà
         const exists = await dossierPatientService.exists(patient.patient_id);
-        
+
         if (!exists) {
           const { description, ...patientData } = patient;
-          await dossierPatientService.create(patientData);
+          await dossierPatientService.create(patientData as any);
           created.push(patient.patient_id);
           toast.success(`Patient ${patient.prenom} ${patient.nom} créé !`);
 
@@ -120,12 +120,12 @@ const TestDataPage: React.FC = () => {
             }
           }
         } else {
-          toast.info(`Patient ${patient.prenom} ${patient.nom} existe déjà`);
+          toast(`Patient ${patient.prenom} ${patient.nom} existe déjà`, { icon: 'ℹ️' });
         }
       }
 
       setCreatedPatients(prev => [...prev, ...created]);
-      
+
       if (created.length > 0) {
         toast.success(`${created.length} patient(s) de test créé(s) avec succès !`);
       }
@@ -144,14 +144,14 @@ const TestDataPage: React.FC = () => {
     try {
       // Vérifier si le patient existe déjà
       const exists = await dossierPatientService.exists(patient.patient_id);
-      
+
       if (!exists) {
         const { description, ...patientData } = patient;
-        await dossierPatientService.create(patientData);
+        await dossierPatientService.create(patientData as any);
         setCreatedPatients(prev => [...prev, patient.patient_id]);
         toast.success(`Patient ${patient.prenom} ${patient.nom} créé avec succès !`);
       } else {
-        toast.info(`Patient ${patient.prenom} ${patient.nom} existe déjà`);
+        toast(`Patient ${patient.prenom} ${patient.nom} existe déjà`, { icon: 'ℹ️' });
       }
 
     } catch (error) {
@@ -240,7 +240,7 @@ const TestDataPage: React.FC = () => {
                     <User className="w-5 h-5" />
                     <span>{patient.prenom} {patient.nom}</span>
                   </div>
-                  <Badge 
+                  <Badge
                     variant={createdPatients.includes(patient.patient_id) ? 'default' : 'secondary'}
                     className={createdPatients.includes(patient.patient_id) ? 'bg-green-100 text-green-800' : ''}
                   >
@@ -274,7 +274,7 @@ const TestDataPage: React.FC = () => {
                   </div>
                   <div>
                     <label className="font-medium text-muted-foreground">Groupe sanguin</label>
-                    <Badge variant="outline" className="text-red-600 border-red-200">
+                    <Badge variant="secondary" className="text-red-600 border-red-200">
                       {patient.groupe_sanguin}
                     </Badge>
                   </div>

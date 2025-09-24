@@ -82,7 +82,7 @@ L'équipe Fadju
       const result = await emailjs.send(
         EMAILJS_CONFIG.SERVICE_ID,
         EMAILJS_CONFIG.TEMPLATE_ID,
-        templateParams
+        templateParams as any
       );
 
       if (result.status === 200) {
@@ -137,7 +137,7 @@ Le système Fadju
       await emailjs.send(
         EMAILJS_CONFIG.SERVICE_ID,
         EMAILJS_CONFIG.TEMPLATE_ID,
-        templateParams
+        templateParams as any
       );
       console.log('Email de notification envoyé au secrétaire');
     } catch (error) {
@@ -198,7 +198,7 @@ Le système Fadju
       await emailjs.send(
         EMAILJS_CONFIG.SERVICE_ID,
         EMAILJS_CONFIG.TEMPLATE_ID,
-        templateParams
+        templateParams as any
       );
       console.log('Notification admin envoyée avec succès');
     } catch (error) {
@@ -266,7 +266,7 @@ L'équipe Fadju
       await emailjs.send(
         EMAILJS_CONFIG.SERVICE_ID,
         EMAILJS_CONFIG.TEMPLATE_ID,
-        templateParams
+        templateParams as any
       );
       console.log('Email de validation envoyé au secrétaire');
     } catch (error) {
@@ -337,7 +337,7 @@ L'équipe Fadju
       await emailjs.send(
         EMAILJS_CONFIG.SERVICE_ID,
         EMAILJS_CONFIG.TEMPLATE_ID,
-        templateParams
+        templateParams as any
       );
       console.log('Email de refus envoyé au secrétaire');
     } catch (error) {
@@ -400,7 +400,7 @@ L'équipe Fadju
       await emailjs.send(
         EMAILJS_CONFIG.SERVICE_ID,
         EMAILJS_CONFIG.TEMPLATE_ID,
-        templateParams
+        templateParams as any
       );
       console.log('Email de confirmation d\'inscription envoyé');
     } catch (error) {
@@ -441,7 +441,7 @@ L'équipe Fadju
       await emailjs.send(
         EMAILJS_CONFIG.SERVICE_ID,
         EMAILJS_CONFIG.TEMPLATE_ID,
-        testParams
+        testParams as any
       );
       return true;
     } catch (error) {

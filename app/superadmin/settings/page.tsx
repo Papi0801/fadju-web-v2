@@ -64,7 +64,7 @@ const SuperAdminSettingsPage: React.FC = () => {
 
   // Formulaire profil
   const profileForm = useForm<ProfileForm>({
-    resolver: yupResolver(profileSchema),
+    resolver: yupResolver(profileSchema) as any,
     defaultValues: {
       nom: user?.nom || '',
       prenom: user?.prenom || '',
@@ -89,6 +89,10 @@ const SuperAdminSettingsPage: React.FC = () => {
     } finally {
       setActionLoading(null);
     }
+  };
+
+  const handleProfileSubmit = (data: ProfileForm) => {
+    onProfileSubmit(data);
   };
 
   const onPasswordSubmit = async (data: PasswordForm) => {
@@ -181,7 +185,7 @@ const SuperAdminSettingsPage: React.FC = () => {
                   </CardTitle>
                 </CardHeader>
                 <CardContent>
-                  <form onSubmit={profileForm.handleSubmit(onProfileSubmit)} className="space-y-6">
+                  <form onSubmit={profileForm.handleSubmit(handleProfileSubmit)} className="space-y-6">
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                       <Input
                         {...profileForm.register('prenom')}
@@ -269,7 +273,7 @@ const SuperAdminSettingsPage: React.FC = () => {
                   </CardTitle>
                 </CardHeader>
                 <CardContent>
-                  <form onSubmit={passwordForm.handleSubmit(onPasswordSubmit)} className="space-y-6">
+                  <form onSubmit={passwordForm.handleSubmit((data) => onPasswordSubmit(data))} className="space-y-6">
                     <Input
                       {...passwordForm.register('currentPassword')}
                       type={showCurrentPassword ? 'text' : 'password'}

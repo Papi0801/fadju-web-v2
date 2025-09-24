@@ -127,13 +127,13 @@ export const useRendezVousStore = create<RendezVousStore>((set, get) => ({
     set({ loading: true, error: null });
     try {
       await rendezVousService.update(id, data);
-      
+
       // Mettre à jour le rendez-vous sélectionné s'il correspond
       const { selectedRendezVous } = get();
       if (selectedRendezVous?.id === id) {
         set({ selectedRendezVous: { ...selectedRendezVous, ...data } });
       }
-      
+
       set({ loading: false });
     } catch (error: any) {
       set({ error: error.message, loading: false });
@@ -145,7 +145,7 @@ export const useRendezVousStore = create<RendezVousStore>((set, get) => ({
     set({ loading: true, error: null });
     try {
       await rendezVousService.delete(id);
-      
+
       // Supprimer de toutes les listes locales
       const { rendezVous, rendezVousEnAttente, rendezVousAujourdhui } = get();
       set({
@@ -165,19 +165,19 @@ export const useRendezVousStore = create<RendezVousStore>((set, get) => ({
     set({ loading: true, error: null });
     try {
       await rendezVousService.update(id, {
-        statut: 'confirme',
+        statut: 'confirme' as any,
         medecin_id: medecinId,
       });
-      
+
       // Mettre à jour les listes locales
       const updateRendezVous = (rv: RendezVous) =>
         rv.id === id ? { ...rv, statut: 'confirme' as const, medecin_id: medecinId } : rv;
 
       const { rendezVous, rendezVousEnAttente, rendezVousAujourdhui } = get();
       set({
-        rendezVous: rendezVous.map(updateRendezVous),
-        rendezVousEnAttente: rendezVousEnAttente.filter(rv => rv.id !== id),
-        rendezVousAujourdhui: rendezVousAujourdhui.map(updateRendezVous),
+        rendezVous: ((rendezVous as any) || []).map(updateRendezVous),
+        rendezVousEnAttente: ((rendezVousEnAttente as any) || []).filter((rv: { id: string; }) => rv.id !== id),
+        rendezVousAujourdhui: ((rendezVousAujourdhui as any) || []).map(updateRendezVous),
         loading: false,
       });
     } catch (error: any) {
@@ -190,19 +190,19 @@ export const useRendezVousStore = create<RendezVousStore>((set, get) => ({
     set({ loading: true, error: null });
     try {
       await rendezVousService.update(id, {
-        statut: 'annule',
-        notes: motif || 'Rendez-vous annulé',
+        statut: 'annule' as any,
+        notes_secretaire: motif || 'Rendez-vous annulé',
       });
-      
+
       // Mettre à jour les listes locales
       const updateRendezVous = (rv: RendezVous) =>
-        rv.id === id ? { ...rv, statut: 'annule' as const, notes: motif } : rv;
+        rv.id === id ? { ...rv, statut: 'annule' as const, notes_secretaire: motif } : rv;
 
       const { rendezVous, rendezVousEnAttente, rendezVousAujourdhui } = get();
       set({
-        rendezVous: rendezVous.map(updateRendezVous),
-        rendezVousEnAttente: rendezVousEnAttente.map(updateRendezVous),
-        rendezVousAujourdhui: rendezVousAujourdhui.map(updateRendezVous),
+        rendezVous: ((rendezVous as any) || []).map(updateRendezVous),
+        rendezVousEnAttente: ((rendezVousEnAttente as any) || []).map(updateRendezVous),
+        rendezVousAujourdhui: ((rendezVousAujourdhui as any) || []).map(updateRendezVous),
         loading: false,
       });
     } catch (error: any) {

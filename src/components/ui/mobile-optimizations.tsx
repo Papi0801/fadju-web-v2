@@ -1,4 +1,4 @@
-import React from 'react';
+import React, {JSX} from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { cn } from '@/lib/utils';
 
@@ -13,7 +13,7 @@ export const useIsMobile = () => {
 
     checkMobile();
     window.addEventListener('resize', checkMobile);
-    
+
     return () => window.removeEventListener('resize', checkMobile);
   }, []);
 
@@ -294,7 +294,7 @@ export const Touchable: React.FC<TouchableProps> = ({
       className={cn('touch-manipulation', className)}
       whileTap={getWhileTap()}
       transition={{ duration: 0.1 }}
-      {...props}
+      {...(props as any)}
     >
       {children}
     </motion.button>

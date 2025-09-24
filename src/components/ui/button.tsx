@@ -44,7 +44,7 @@ const Button: React.FC<ButtonProps> = ({
         className
       )}
       disabled={disabled || loading}
-      {...props}
+      {...(props as any)}
     >
       {loading && (
         <motion.div

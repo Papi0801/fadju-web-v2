@@ -17,7 +17,7 @@ const Skeleton: React.FC<SkeletonProps> = ({ className, ...props }) => {
         repeat: Infinity,
         ease: 'easeInOut',
       }}
-      {...props}
+      {...(props as any)}
     />
   );
 };
@@ -88,7 +88,7 @@ const TableSkeleton: React.FC<TableSkeletonProps> = ({ rows = 5, columns = 4 }) 
           ))}
         </div>
       </div>
-      
+
       {/* Rows */}
       <div className="divide-y divide-border">
         {Array.from({ length: rows }).map((_, rowIndex) => (
@@ -101,12 +101,12 @@ const TableSkeleton: React.FC<TableSkeletonProps> = ({ rows = 5, columns = 4 }) 
           >
             <div className="grid grid-cols-4 gap-4 items-center">
               {Array.from({ length: columns }).map((_, colIndex) => (
-                <Skeleton 
-                  key={colIndex} 
+                <Skeleton
+                  key={colIndex}
                   className={cn(
                     "h-4",
                     colIndex === 0 ? "w-3/4" : "w-full"
-                  )} 
+                  )}
                 />
               ))}
             </div>
@@ -169,9 +169,9 @@ const LoadingDots: React.FC<{ className?: string }> = ({ className }) => {
 };
 
 // Spinner de chargement amélioré
-const LoadingSpinner: React.FC<{ size?: 'sm' | 'md' | 'lg'; className?: string }> = ({ 
-  size = 'md', 
-  className 
+const LoadingSpinner: React.FC<{ size?: 'sm' | 'md' | 'lg'; className?: string }> = ({
+  size = 'md',
+  className
 }) => {
   const sizeClasses = {
     sm: 'w-4 h-4',

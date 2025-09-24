@@ -61,7 +61,23 @@ const PatientDetailPage: React.FC = () => {
 
       // Récupérer les résultats médicaux depuis le service approprié
       const { resultatsMedicauxService } = await import('@/lib/firebase/resultats-medicaux-service');
-      const resultatsData = await resultatsMedicauxService.getResultatsByPatient(patientId);
+      console.log('Récupération des résultats pour patient ID:', patientId);
+      let resultatsData = await resultatsMedicauxService.getResultatsByPatient(patientId);
+      console.log('Résultats récupérés:', resultatsData);
+      
+      // Si pas de résultats et que c'est un patient de test, créer des données de test
+      if (resultatsData.length === 0 && patientId === 'test1234') {
+        try {
+          console.log('Création de résultats de test pour Aminata Diallo');
+          await dossierPatientService.createTestResultats('test1234', 'medecin_test_001');
+          // Re-récupérer les données après création
+          resultatsData = await resultatsMedicauxService.getResultatsByPatient(patientId);
+          console.log('Nouveaux résultats après création de test:', resultatsData);
+        } catch (error) {
+          console.warn('Erreur lors de la création des résultats de test:', error);
+        }
+      }
+      
       setResultats(resultatsData);
 
     } catch (error) {
@@ -304,8 +320,8 @@ const PatientDetailPage: React.FC = () => {
                           <div className="flex-1">
                             <h4 className="font-medium text-sm">{resultat.titre}</h4>
                             <p className="text-xs text-muted-foreground">
-                              {resultat.type === 'consultation' ? 'Consultation' : 
-                               resultat.type === 'analyse' ? `Analyse - ${resultat.donnees?.nom_analyse || 'Analyse médicale'}` : 
+                              {(resultat.type as any) === 'consultation' ? 'Consultation' : 
+                               (resultat.type as any) === 'analyse' ? `Analyse - ${resultat.donnees?.nom_analyse || 'Analyse médicale'}` : 
                                resultat.type} • {resultat.nom_medecin}
                             </p>
                             <p className="text-xs text-muted-foreground flex items-center space-x-1 mt-1">

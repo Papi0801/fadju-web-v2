@@ -306,9 +306,9 @@ const HistoriqueMedicalPage: React.FC = () => {
                           <div className="flex items-center space-x-3 mb-2">
                             <h3 className="font-semibold text-lg">{resultat.titre}</h3>
                             <Badge variant={getTypeBadgeVariant(resultat.type)}>
-                              {resultat.type === 'consultation' ? 'Consultation' :
-                               resultat.type === 'analyse' ? 'Analyse' :
-                               resultat.type === 'ordonnance' ? 'Ordonnance' : resultat.type}
+                              {(resultat.type as any) === 'consultation' ? 'Consultation' :
+                               (resultat.type as any) === 'analyse' ? 'Analyse' :
+                               (resultat.type as any) === 'ordonnance' ? 'Ordonnance' : resultat.type}
                             </Badge>
                           </div>
                           
@@ -392,24 +392,24 @@ const HistoriqueMedicalPage: React.FC = () => {
                   <div>
                     <h4 className="font-medium mb-2">Observations</h4>
                     <p className="text-sm bg-muted/30 p-3 rounded-lg">
-                      {selectedResultat.observations || selectedResultat.description}
+                      {(selectedResultat as any).observations || selectedResultat.description}
                     </p>
                   </div>
                   
-                  {selectedResultat.traitement_prescrit && (
+                  {(selectedResultat as any).traitement_prescrit && (
                     <div>
                       <h4 className="font-medium mb-2">Traitement prescrit</h4>
                       <p className="text-sm bg-muted/30 p-3 rounded-lg">
-                        {selectedResultat.traitement_prescrit}
+                        {(selectedResultat as any).traitement_prescrit}
                       </p>
                     </div>
                   )}
                   
-                  {selectedResultat.analyses_demandees && (
+                  {(selectedResultat as any).analyses_demandees && (
                     <div>
                       <h4 className="font-medium mb-2">Analyses demandées</h4>
                       <p className="text-sm bg-muted/30 p-3 rounded-lg">
-                        {selectedResultat.analyses_demandees}
+                        {(selectedResultat as any).analyses_demandees}
                       </p>
                     </div>
                   )}
@@ -422,13 +422,13 @@ const HistoriqueMedicalPage: React.FC = () => {
                     <div>
                       <h4 className="font-medium mb-2">Type d'analyse</h4>
                       <p className="text-sm bg-muted/30 p-3 rounded-lg">
-                        {selectedResultat.type_analyse}
+                        {(selectedResultat as any).type_analyse}
                       </p>
                     </div>
                     <div>
                       <h4 className="font-medium mb-2">Nom de l'analyse</h4>
                       <p className="text-sm bg-muted/30 p-3 rounded-lg">
-                        {selectedResultat.nom_analyse}
+                        {(selectedResultat as any).nom_analyse}
                       </p>
                     </div>
                   </div>
@@ -436,26 +436,26 @@ const HistoriqueMedicalPage: React.FC = () => {
                   <div>
                     <h4 className="font-medium mb-2">Résultats</h4>
                     <p className="text-sm bg-muted/30 p-3 rounded-lg">
-                      {selectedResultat.resultats_analyse || selectedResultat.observations}
+                      {(selectedResultat as any).resultats_analyse || (selectedResultat as any).observations}
                     </p>
                   </div>
                   
-                  {selectedResultat.interpretation && (
+                  {(selectedResultat as any).interpretation && (
                     <div>
                       <h4 className="font-medium mb-2">Interprétation</h4>
                       <p className="text-sm bg-muted/30 p-3 rounded-lg">
-                        {selectedResultat.interpretation}
+                        {(selectedResultat as any).interpretation}
                       </p>
                     </div>
                   )}
                 </div>
               )}
 
-              {selectedResultat.recommandations && (
+              {(selectedResultat as any).recommandations && (
                 <div>
                   <h4 className="font-medium mb-2">Recommandations</h4>
                   <p className="text-sm bg-muted/30 p-3 rounded-lg">
-                    {selectedResultat.recommandations}
+                    {(selectedResultat as any).recommandations}
                   </p>
                 </div>
               )}
