@@ -538,7 +538,7 @@ const DemandesRendezVousPage: React.FC = () => {
       case 'reportee':
         return 'secondary';
       case 'terminee':
-        return 'outline';
+        return 'secondary';
       case 'en_attente':
       default:
         return 'secondary';

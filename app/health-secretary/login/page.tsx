@@ -5,13 +5,10 @@ import { motion } from 'framer-motion';
 import { useForm } from 'react-hook-form';
 import { yupResolver } from '@hookform/resolvers/yup';
 import * as yup from 'yup';
-import { Lock, Mail, Eye, EyeOff, Building2, ArrowLeft } from 'lucide-react';
 import { useRouter } from 'next/navigation';
-import toast from 'react-hot-toast';
-import Image from 'next/image';
+
 
 import { useAuthStore } from '@/store';
-import { Button, Input, Card, CardContent, CardHeader, CardTitle, Loading, LoadingOverlay, ConditionalThemeToggle } from '@/components/ui';
 import { LoginForm } from '@/types';
 
 const loginSchema = yup.object({
