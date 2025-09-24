@@ -44,7 +44,7 @@ async function createTestSeed() {
       actif: true,
     };
 
-    await dossierPatientService.create(testPatientData);
+    await dossierPatientService.create(testPatientData as any);
     console.log('✅ Dossier patient créé avec succès !');
 
     // Créer quelques patients supplémentaires pour les tests
@@ -103,7 +103,7 @@ async function createTestSeed() {
     ];
 
     for (const patient of additionalPatients) {
-      await dossierPatientService.create(patient);
+      await dossierPatientService.create(patient as any);
       console.log(`✅ Patient ${patient.prenom} ${patient.nom} créé !`);
     }
 
